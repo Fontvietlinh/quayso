@@ -145,9 +145,6 @@
         .pointer,
         .spin-btn,
         .hub-highlight,
-        .top-badge {
-            position: absolute;
-        }
 
         .wheel-glow-ring {
             inset: 0;
@@ -264,25 +261,6 @@
             background: linear-gradient(145deg, #fff6c8, #ffd86b 45%, #ffb703 70%, #c57100 100%);
             clip-path: polygon(0 50%, 100% 0, 100% 100%);
             filter: saturate(1.15);
-        }
-
-        .top-badge {
-            top: 28px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9;
-            padding: 10px 18px;
-            border-radius: 999px;
-            background: rgba(8, 17, 32, 0.72);
-            border: 1px solid rgba(255,255,255,0.12);
-            backdrop-filter: blur(10px);
-            color: #d8e6ff;
-            font-size: 14px;
-            font-weight: 900;
-            font-family: 'Barlow Condensed', sans-serif;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            box-shadow: var(--soft-shadow);
         }
 
         .spin-btn {
@@ -482,12 +460,6 @@
 
         .btn-contact:hover { color: #ffd2df !important; }
 
-        .footer-note {
-            margin-top: 12px;
-            color: var(--muted);
-            font-size: 12px;
-            text-align: center;
-        }
 
         @keyframes ledPulse {
             0%, 100% { transform: scale(0.9); opacity: 0.55; }
@@ -522,8 +494,11 @@
 
         @media (max-width: 720px) {
             header { padding-top: 18px; }
+            header h1 { letter-spacing: 1.5px; }
             .container { padding: 8px 14px 24px; gap: 22px; }
             .wheel-stage {
+                width: min(92vw, 480px);
+                height: min(92vw, 480px);
                 min-width: 280px;
                 min-height: 280px;
             }
@@ -536,22 +511,27 @@
             .spin-btn {
                 width: 96px;
                 height: 96px;
-                font-size: 20px;
+                font-size: 22px;
                 border-width: 6px;
             }
             .hub-highlight {
                 width: 120px;
                 height: 120px;
             }
-            .top-badge {
-                top: 16px;
-                font-size: 11px;
-                padding: 8px 12px;
+            .controls {
+                grid-template-columns: 1fr 1fr;
             }
-            .controls { grid-template-columns: 1fr; }
-            .btn-shuffle { grid-column: span 1; }
+            .btn-shuffle { grid-column: span 2; }
             .input-section,
             .links-section { border-radius: 22px; }
+            .links-section a { font-size: 13px; padding: 13px 12px; }
+            .sidebar { gap: 16px; }
+        }
+
+        @media (max-width: 400px) {
+            .controls { grid-template-columns: 1fr; }
+            .btn-shuffle { grid-column: span 1; }
+            .spin-btn { width: 80px; height: 80px; font-size: 18px; }
         }
     </style>
 </head>
@@ -571,7 +551,6 @@
                 </div>
                 <div class="hub-highlight"></div>
                 <div class="led-ring" id="led-ring"></div>
-                <div class="top-badge">Lucky Spin</div>
                 <div class="pointer" id="pointer"></div>
                 <div class="spin-btn" id="spin-btn">QUAY</div>
             </div>
@@ -583,19 +562,18 @@
                     <h2>Danh Sách</h2>
                     <span class="count-badge" id="entry-count">0</span>
                 </div>
-                <textarea id="names-input" placeholder="Mỗi dòng là một mục quay..."></textarea>
+                <textarea id="names-input" placeholder="Nhập mỗi mục trên một dòng..."></textarea>
                 <div class="controls">
                     <button class="btn btn-shuffle" id="shuffle-btn">Xáo trộn danh sách</button>
                     <button class="btn btn-reset" id="reset-btn">Mặc định</button>
                     <button class="btn btn-clear" id="clear-btn">Xóa hết</button>
                 </div>
-                <div class="footer-note">Mọi chức năng gốc vẫn giữ nguyên, chỉ nâng cấp phần giao diện và cảm giác thị giác.</div>
             </div>
 
             <div class="links-section glass-card">
                 <a href="https://docs.google.com/spreadsheets/d/1FJZfdUx50TFt2mWM11f9i2Lm8f2Bsxum/edit?usp=sharing&ouid=1.0875907886142684e+20&rtpof=true&sd=true" target="_blank">📚 Bộ font Việt Hoá 4500 Font</a>
                 <a href="https://docs.google.com/spreadsheets/d/1LCw8ESaDGv3I9PAAimqbUHFhhIUR6CWmPdkkwObyQYY/edit?usp=sharing" target="_blank">🔥 Bộ font Việt hoá Tháng 1-T6/2026</a>
-                <a href="https://www.facebook.com/FontVietLinh" target="_blank" class="btn-contact">Liên hệ "Font Việt Linh"</a>
+                <a href="https://m.me/FontVietLinh" target="_blank" class="btn-contact">💬 Nhắn tin cho Font Việt Linh</a>
             </div>
         </div>
     </main>
@@ -629,8 +607,8 @@ Hợi";
         let spinVelocity = 0;
         let animationFrame;
 
-        const savedData = localStorage.getItem('fontVietLinh_wheelData');
-        namesInput.value = savedData !== null ? savedData : defaultNames;
+        const savedData = localStorage.getItem('fontVietLinh_wheelData_v2');
+        namesInput.value = (savedData !== null && savedData.trim() !== '') ? savedData : defaultNames;
 
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AudioContext();
@@ -723,7 +701,7 @@ Hợi";
             names = text.split('
 ').map(n => n.trim()).filter(n => n.length > 0);
             entryCount.innerText = names.length;
-            localStorage.setItem('fontVietLinh_wheelData', text);
+            localStorage.setItem('fontVietLinh_wheelData_v2', text);
             currentAngle = 0;
             canvas.style.transform = `rotate(0rad)`;
             drawWheel();
