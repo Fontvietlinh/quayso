@@ -12,6 +12,7 @@
             --bg: #050a14;
             --primary: #36d7ff;
             --gold: #ffb703;
+            --panel: rgba(15, 31, 56, 0.9);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -41,14 +42,14 @@
             margin: 0 auto;
             width: 100%;
             padding: 20px;
-            gap: 50px;
+            gap: 40px;
             align-items: center;
             justify-content: center;
         }
 
-        /* KHU VỰC VÒNG QUAY - Tối ưu kích thước cho PC */
+        /* VÒNG QUAY */
         .wheel-section {
-            flex: 1.5;
+            flex: 1.4;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -56,122 +57,71 @@
         }
         .wheel-outer {
             position: relative;
-            width: min(85vh, 650px); /* Tăng kích thước vòng quay trên PC */
-            height: min(85vh, 650px);
+            width: min(82vh, 620px);
+            height: min(82vh, 620px);
             background: conic-gradient(#fff5c2, #ffcb52, #ff9f1c, #ffd76a, #fff5c2);
             border-radius: 50%;
-            padding: 15px; /* Độ dày viền vàng */
-            box-shadow: 0 0 60px rgba(0,0,0,0.8), 0 0 20px rgba(255,183,3,0.3);
+            padding: 12px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.8);
         }
 
-        /* HỆ THỐNG ĐÈN LED */
-        .led-container {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            z-index: 5;
-            pointer-events: none;
-        }
+        /* LED */
+        .led-container { position: absolute; inset: 0; border-radius: 50%; z-index: 5; pointer-events: none; }
         .led {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #fff;
-            border-radius: 50%;
-            top: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-            transform-origin: 50% 320px; /* Khớp với bán kính wheel-outer */
-            box-shadow: 0 0 10px #fff, 0 0 20px var(--gold);
-            animation: led-blink 1s infinite alternate;
+            position: absolute; width: 10px; height: 10px; background: #fff; border-radius: 50%;
+            top: 2px; left: 50%; transform: translateX(-50%);
+            transform-origin: 50% 310px; /* Bán kính LED */
+            box-shadow: 0 0 10px #fff, 0 0 15px var(--gold);
+            animation: led-blink 0.8s infinite alternate;
         }
-        @keyframes led-blink {
-            0% { opacity: 0.5; filter: brightness(1); }
-            100% { opacity: 1; filter: brightness(1.5); box-shadow: 0 0 15px var(--gold); }
-        }
+        @keyframes led-blink { 0% { opacity: 0.4; } 100% { opacity: 1; filter: brightness(1.3); } }
 
-        .canvas-wrap {
-            width: 100%;
-            height: 100%;
-            background: #0d1d35;
-            border-radius: 50%;
-            overflow: hidden;
-            position: relative;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-            will-change: transform;
-            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
-        }
+        .canvas-wrap { width: 100%; height: 100%; background: #0d1d35; border-radius: 50%; overflow: hidden; }
+        canvas { width: 100%; height: 100%; display: block; will-change: transform; transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1); }
 
-        /* KIM CHỈ & NÚT QUAY */
         .pointer {
-            position: absolute;
-            top: 50%; right: -20px;
-            transform: translateY(-50%);
-            width: 80px; height: 50px;
-            background: linear-gradient(to left, #ff3d71, #aa1238);
-            clip-path: polygon(0 50%, 100% 0, 100% 100%);
-            z-index: 10;
-            filter: drop-shadow(-5px 5px 5px rgba(0,0,0,0.5));
-            transition: 0.1s;
+            position: absolute; top: 50%; right: -25px; transform: translateY(-50%);
+            width: 75px; height: 50px; background: linear-gradient(to left, #ff3d71, #aa1238);
+            clip-path: polygon(0 50%, 100% 0, 100% 100%); z-index: 10;
         }
         .spin-btn {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 110px; height: 110px;
-            background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
-            border: 6px solid #fff;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 20;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100px; height: 100px; background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
+            border: 5px solid #fff; border-radius: 50%; cursor: pointer; z-index: 20;
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 900; font-size: 24px; color: #3a2100;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            transition: 0.2s;
+            font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 22px; color: #3a2100;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5); transition: 0.2s;
         }
         .spin-btn:active { transform: translate(-50%, -50%) scale(0.9); }
 
-        /* THANH BÊN */
-        .sidebar {
-            flex: 0.7;
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .card {
-            background: rgba(15, 31, 56, 0.9);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
+        /* SIDEBAR */
+        .sidebar { flex: 0.8; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 15px; }
+        .card { background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 22px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+        .card h3 { font-family: 'Barlow Condensed'; margin-bottom: 12px; letter-spacing: 1px; display: flex; justify-content: space-between; }
+        
         textarea {
-            width: 100%; height: 220px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 15px; color: #fff;
-            font-size: 16px; outline: none; resize: none;
+            width: 100%; height: 220px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; padding: 15px; color: #fff; font-size: 15px; outline: none; resize: none; line-height: 1.6;
         }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .btn {
-            padding: 15px; border: none; border-radius: 12px;
-            font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 13px;
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn { padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 12px; transition: 0.2s; }
+        .btn-main { grid-column: span 2; background: var(--primary); color: #000; font-size: 14px; }
+        .btn-sec { background: rgba(255,255,255,0.08); color: #fff; }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+        /* LINKS */
+        .links-group { display: flex; flex-direction: column; gap: 10px; }
+        .link-item {
+            display: block; padding: 14px; background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: #fff;
+            text-decoration: none; text-align: center; font-weight: 700; font-size: 13px; transition: 0.2s;
         }
-        .btn-main { grid-column: span 2; background: var(--primary); color: #000; }
-        .btn-sec { background: rgba(255,255,255,0.05); color: #fff; }
+        .link-item:hover { border-color: var(--primary); background: rgba(54, 215, 255, 0.1); }
 
         @media (max-width: 1100px) {
             .main-container { flex-direction: column; }
-            .wheel-outer { width: 85vw; height: 85vw; padding: 10px; }
-            .led { transform-origin: 50% 41.5vw; } /* Chỉnh LED cho mobile */
+            .wheel-outer { width: 88vw; height: 88vw; }
+            .led { transform-origin: 50% 43vw; }
             .sidebar { max-width: 100%; }
         }
     </style>
@@ -184,11 +134,9 @@
 
 <main class="main-container">
     <div class="wheel-section">
-        <div class="wheel-outer" id="wheelOuter">
+        <div class="wheel-outer">
             <div class="led-container" id="ledContainer"></div>
-            <div class="canvas-wrap">
-                <canvas id="wheelCanvas" width="800" height="800"></canvas>
-            </div>
+            <div class="canvas-wrap"><canvas id="wheelCanvas" width="800" height="800"></canvas></div>
             <div class="pointer" id="pointer"></div>
             <div class="spin-btn" id="spinBtn">QUAY</div>
         </div>
@@ -196,13 +144,19 @@
 
     <div class="sidebar">
         <div class="card">
-            <h3 style="font-family:'Barlow Condensed'; margin-bottom:15px; letter-spacing:1px;">DANH SÁCH THAM GIA</h3>
-            <textarea id="inputNames" placeholder="Nhập tên..."></textarea>
+            <h3>DANH SÁCH <span id="count" style="color:var(--primary)">0</span></h3>
+            <textarea id="inputNames" placeholder="Nhập mỗi mục một dòng..."></textarea>
             <div class="btn-group">
-                <button class="btn btn-main" onclick="shuffleNames()">XÁO TRỘN</button>
-                <button class="btn btn-sec" onclick="resetDefault()">MẶC ĐỊNH</button>
-                <button class="btn btn-sec" onclick="clearAll()">XÓA HẾT</button>
+                <button class="btn btn-main" onclick="shuffleNames()">Xáo trộn danh sách</button>
+                <button class="btn btn-sec" onclick="resetDefault()">Mặc định</button>
+                <button class="btn btn-sec" onclick="clearAll()">Xóa hết</button>
             </div>
+        </div>
+
+        <div class="card links-group">
+            <a href="https://docs.google.com/spreadsheets/d/1FJZfdUx50TFt2mWM11f9i2Lm8f2Bsxum/edit" target="_blank" class="link-item">📚 Bộ font Việt Hoá 4500 Font</a>
+            <a href="https://docs.google.com/spreadsheets/d/1LCw8ESaDGv3I9PAAimqbUHFhhIUR6CWmPdkkwObyQYY/edit" target="_blank" class="link-item">🔥 Bộ font Việt hoá Tháng 1-T6/2026</a>
+            <a href="#" id="btn-msg" class="link-item" style="color: #ff7aa2;">💬 Nhắn tin cho Font Việt Linh</a>
         </div>
     </div>
 </main>
@@ -211,25 +165,25 @@
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d', { alpha: false });
     const inputNames = document.getElementById('inputNames');
-    const ledContainer = document.getElementById('ledContainer');
     const pointer = document.getElementById('pointer');
     const spinBtn = document.getElementById('spinBtn');
 
     const colors = ["#FF5A5F", "#3BCEAC", "#FFC857", "#2D93AD", "#9B5DE5", "#F15BB5", "#00BBF9", "#00F5D4", "#FCA311", "#E01A4F", "#06D6A0", "#118AB2"];
+    const defaultData = "Tý\nSửu\nDần\nMão\nThìn\nTỵ\nNgọ\nMùi\nThân\nDậu\nTuất\nHợi";
     let names = [];
     let currentRotation = 0;
     let isSpinning = false;
 
-    // Tạo 24 bóng LED
+    // Khởi tạo LED
     for (let i = 0; i < 24; i++) {
         const led = document.createElement('div');
         led.className = 'led';
         led.style.transform = `translateX(-50%) rotate(${i * 15}deg)`;
         led.style.animationDelay = `${i * 0.1}s`;
-        ledContainer.appendChild(led);
+        document.getElementById('ledContainer').appendChild(led);
     }
 
-    // Âm thanh Tạch tạch
+    // Âm thanh chuẩn
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playTick() {
         const osc = audioCtx.createOscillator();
@@ -237,40 +191,26 @@
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.frequency.setValueAtTime(800, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
         osc.start(); osc.stop(audioCtx.currentTime + 0.05);
-        
-        // Hiệu ứng Pointer giật
         pointer.style.transform = 'translateY(-50%) rotate(15deg)';
         setTimeout(() => pointer.style.transform = 'translateY(-50%) rotate(0deg)', 40);
     }
 
     function draw() {
-        const cx = 400, cy = 400, r = 385;
-        ctx.fillStyle = "#0d1d35";
-        ctx.fillRect(0, 0, 800, 800);
+        ctx.fillStyle = "#0d1d35"; ctx.fillRect(0, 0, 800, 800);
         if (names.length === 0) return;
-
         const slice = (Math.PI * 2) / names.length;
         names.forEach((name, i) => {
             const angle = i * slice;
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, r, angle, angle + slice);
-            ctx.fillStyle = colors[i % colors.length];
-            ctx.fill();
-            ctx.strokeStyle = "rgba(255,255,255,0.1)";
-            ctx.stroke();
-
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(angle + slice / 2);
-            ctx.textAlign = "right";
-            ctx.fillStyle = "#fff";
-            ctx.font = '900 40px "Barlow Condensed", sans-serif';
-            ctx.fillText(name.substring(0, 15), r - 45, 12);
-            ctx.restore();
+            ctx.beginPath(); ctx.moveTo(400, 400); ctx.arc(400, 400, 390, angle, angle + slice);
+            ctx.fillStyle = colors[i % colors.length]; ctx.fill();
+            ctx.strokeStyle = "rgba(255,255,255,0.1)"; ctx.stroke();
+            ctx.save(); ctx.translate(400, 400); ctx.rotate(angle + slice / 2);
+            ctx.textAlign = "right"; ctx.fillStyle = "#fff";
+            ctx.font = '900 38px "Barlow Condensed", sans-serif';
+            ctx.fillText(name.substring(0, 15), 345, 12); ctx.restore();
         });
     }
 
@@ -278,33 +218,21 @@
         if (isSpinning || names.length === 0) return;
         if (audioCtx.state === 'suspended') audioCtx.resume();
         isSpinning = true;
-        
-        const extraRounds = 7 + Math.floor(Math.random() * 5);
+        const rounds = 7 + Math.floor(Math.random() * 5);
         const stopAngle = Math.random() * Math.PI * 2;
-        currentRotation += (extraRounds * Math.PI * 2) + stopAngle;
-
+        currentRotation += (rounds * Math.PI * 2) + stopAngle;
         canvas.style.transform = `rotate(${currentRotation}rad)`;
 
-        // Logic âm thanh khớp với chuyển động
         let lastIdx = -1;
         const startTime = performance.now();
-        const duration = 5000;
-
         function checkTick(now) {
             if (!isSpinning) return;
-            const elapsed = now - startTime;
-            if (elapsed < duration) {
-                // Tính toán vị trí hiện tại của vòng quay để phát tiếng tạch
-                const progress = elapsed / duration;
-                const easeOut = 1 - Math.pow(1 - progress, 3); // Khớp với cubic-bezier
+            const progress = (now - startTime) / 5000;
+            if (progress < 1) {
+                const easeOut = 1 - Math.pow(1 - progress, 3);
                 const currentDeg = (currentRotation * easeOut * 180) / Math.PI;
-                const sliceDeg = 360 / names.length;
-                const currentIdx = Math.floor(currentDeg / sliceDeg);
-
-                if (currentIdx !== lastIdx) {
-                    playTick();
-                    lastIdx = currentIdx;
-                }
+                const currentIdx = Math.floor(currentDeg / (360 / names.length));
+                if (currentIdx !== lastIdx) { playTick(); lastIdx = currentIdx; }
                 requestAnimationFrame(checkTick);
             }
         }
@@ -312,33 +240,53 @@
 
         setTimeout(() => {
             isSpinning = false;
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            // Sau khi dừng, tính toán người thắng (giống logic trước)
             const final = currentRotation % (Math.PI * 2);
             const slice = (Math.PI * 2) / names.length;
             const idx = Math.floor((Math.PI * 2 - (final % (Math.PI * 2))) / slice) % names.length;
             
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             Swal.fire({
-                title: 'CHÚC MỪNG!',
+                title: '🎉 CHÚC MỪNG 🎉',
                 html: `<b style="font-size:32px; color:#ff3d71">${names[idx]}</b>`,
                 icon: 'success',
-                background: '#0f1f38', color: '#fff',
-                confirmButtonText: 'OK'
+                showCancelButton: true,
+                confirmButtonText: 'Loại người này',
+                cancelButtonText: 'Giữ lại',
+                confirmButtonColor: '#db2449',
+                cancelButtonColor: '#243b63',
+                background: '#0f1f38', color: '#fff'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    names.splice(idx, 1);
+                    inputNames.value = names.join('\n');
+                    update();
+                }
             });
         }, 5100);
     }
 
     function update() {
         names = inputNames.value.split('\n').map(t => t.trim()).filter(t => t);
+        document.getElementById('count').innerText = names.length;
+        localStorage.setItem('fv_wheel_v3', inputNames.value);
         draw();
     }
     function shuffleNames() { names.sort(() => Math.random() - 0.5); inputNames.value = names.join('\n'); update(); }
-    function resetDefault() { inputNames.value = "Tý\nSửu\nDần\nMão\nThìn\nTỵ\nNgọ\nMùi\nThân\nDậu\nTuất\nHợi"; update(); }
+    function resetDefault() { inputNames.value = defaultData; update(); }
     function clearAll() { inputNames.value = ""; update(); }
+
+    // Nhắn tin thông minh
+    document.getElementById('btn-msg').onclick = (e) => {
+        e.preventDefault();
+        const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+        window.open(isMobile ? 'https://m.me/FontVietLinh' : 'https://www.facebook.com/messages/t/FontVietLinh', '_blank');
+    };
 
     spinBtn.onclick = spin;
     inputNames.oninput = update;
-    resetDefault();
+    const saved = localStorage.getItem('fv_wheel_v3');
+    inputNames.value = saved || defaultData;
+    update();
 </script>
 </body>
 </html>
