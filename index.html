@@ -194,21 +194,28 @@
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+    // Âm thanh SẮT GÕ NHAU (Đã giảm âm lượng đi một xíu)
     function playMetalTick() {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const startTime = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         const filter = audioCtx.createBiquadFilter();
+
         osc.type = 'sine'; 
         osc.frequency.setValueAtTime(2800, startTime); 
         osc.frequency.exponentialRampToValueAtTime(1200, startTime + 0.03);
+
         filter.type = 'highpass';
         filter.frequency.value = 1500;
-        gain.gain.setValueAtTime(0.6, startTime); 
+
+        // Giảm từ 0.6 xuống 0.5 để vừa tai hơn
+        gain.gain.setValueAtTime(0.5, startTime); 
         gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.03);
+
         osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(startTime + 0.03);
+
         pointer.style.transition = 'none';
         pointer.style.transform = 'translateY(-50%) rotate(22deg)';
         pointer.offsetHeight; 
@@ -216,10 +223,10 @@
         pointer.style.transform = 'translateY(-50%) rotate(0deg)';
     }
 
-    // Âm thanh vỗ tay chúc mừng (Applause)
+    // Âm thanh vỗ tay (Đã đẩy âm lượng lên tối đa)
     function playApplause() {
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        const bufferSize = audioCtx.sampleRate * 3; // 3 giây
+        const bufferSize = audioCtx.sampleRate * 4; 
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
@@ -236,8 +243,9 @@
 
         const gain = audioCtx.createGain();
         gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 3);
+        // Đẩy từ 0.3 lên 0.7 để kêu to hơn hẳn
+        gain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 4);
 
         noise.connect(filter);
         filter.connect(gain);
@@ -301,9 +309,9 @@
             const finalAngle = (Math.PI * 2 - (currentRotation % (Math.PI * 2))) % (Math.PI * 2);
             const idx = Math.floor(finalAngle / ((Math.PI * 2) / names.length)) % names.length;
             playApplause();
-            confetti({ particleCount: 220, spread: 90, origin: { y: 0.6 } });
+            confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 } });
             Swal.fire({
-                title: '🎉 XUẤT SẮC 🎉',
+                title: '🎉 CHÚC MỪNG 🎉',
                 html: `<b style="font-size:34px; color:#ff3d71">${names[idx]}</b>`,
                 icon: 'success',
                 showCancelButton: true, confirmButtonText: 'Loại người này', cancelButtonText: 'Giữ lại',
@@ -322,7 +330,7 @@
     function update() {
         names = inputNames.value.split('\n').map(t => t.trim()).filter(t => t);
         document.getElementById('count').innerText = names.length;
-        localStorage.setItem('fv_left_align_v1', inputNames.value);
+        localStorage.setItem('fv_final_v1', inputNames.value);
         draw();
     }
     function shuffleNames() { names.sort(() => Math.random() - 0.5); inputNames.value = names.join('\n'); update(); }
@@ -337,7 +345,7 @@
     spinBtn.onclick = spin;
     inputNames.oninput = update;
     window.addEventListener('resize', buildLEDs);
-    const saved = localStorage.getItem('fv_left_align_v1');
+    const saved = localStorage.getItem('fv_final_v1');
     inputNames.value = saved || defaultData;
     update();
     setTimeout(buildLEDs, 300);
