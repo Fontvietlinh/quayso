@@ -387,28 +387,28 @@
         return audioCtx;
     }
 
-    // Tiếng TẠCH cơ học - noise burst qua bandpass filter
+    // Tiếng tạch nhẹ - như que gảy vào răng lược
     function playTickSound() {
         const ac  = getAudioCtx();
-        const len = Math.floor(ac.sampleRate * 0.022);
+        const len = Math.floor(ac.sampleRate * 0.018);
         const buf = ac.createBuffer(1, len, ac.sampleRate);
         const d   = buf.getChannelData(0);
         for (let i = 0; i < len; i++) {
-            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 5);
+            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 8);
         }
         const src = ac.createBufferSource();
         src.buffer = buf;
         const bpf = ac.createBiquadFilter();
         bpf.type  = 'bandpass';
-        bpf.frequency.value = 1800;
-        bpf.Q.value = 1.0;
+        bpf.frequency.value = 900;
+        bpf.Q.value = 2.5;
         const gain = ac.createGain();
-        gain.gain.value = 1.8;
+        gain.gain.value = 0.55; // âm lượng nhỏ hơn
         src.connect(bpf); bpf.connect(gain); gain.connect(ac.destination);
         src.start();
 
         pointer.style.transition = 'transform 0.04s ease-out';
-        pointer.style.transform  = 'translateY(-50%) rotate(14deg)';
+        pointer.style.transform  = 'translateY(-50%) rotate(12deg)';
         setTimeout(() => { pointer.style.transform = 'translateY(-50%) rotate(0deg)'; }, 40);
     }
 
@@ -560,24 +560,34 @@
         spinVelocity = Math.random() * 0.2 + 0.6;
         spinBtn.style.pointerEvents = 'none';
         let lastSlice = -1;
+        let lastTime  = null;
 
-        function animate() {
-            currentAngle += spinVelocity;
-            spinVelocity *= 0.991;
+        function animate(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const delta = Math.min((timestamp - lastTime) / 16.67, 2.5); // chuẩn hoá theo 60fps, giới hạn tối đa
+            lastTime = timestamp;
+
+            currentAngle += spinVelocity * delta;
+            spinVelocity *= Math.pow(0.991, delta); // ma sát đều theo thời gian thực
+
             canvas.style.transform = `rotate(${currentAngle}rad)`;
+
             const sl = Math.floor(currentAngle / ((2*Math.PI) / names.length));
             if (sl !== lastSlice) { playTickSound(); lastSlice = sl; }
-            if (spinVelocity > 0.0015) {
+
+            if (spinVelocity > 0.003) {
                 animationFrame = requestAnimationFrame(animate);
             } else {
+                // Dừng mượt: giảm dần đến 0 thay vì cắt đột ngột
+                spinVelocity = 0;
                 isSpinning   = false;
                 currentAngle = currentAngle % (2*Math.PI);
                 cancelAnimationFrame(animationFrame);
                 spinBtn.style.pointerEvents = 'auto';
-                announceWinner();
+                setTimeout(announceWinner, 120); // delay nhỏ cho mượt
             }
         }
-        animate();
+        requestAnimationFrame(animate);
     }
 
     function announceWinner() {
