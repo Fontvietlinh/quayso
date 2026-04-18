@@ -549,42 +549,50 @@
     function getCurrentIndex() {
         if (names.length === 0) return -1;
         const slice = (2 * Math.PI) / names.length;
-        const norm  = (currentAngle % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
-        return Math.floor(((2*Math.PI - norm) % (2*Math.PI)) / slice);
+        const norm  = ((2*Math.PI) - (currentAngle % (2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
+        return Math.floor(norm / slice) % names.length;
     }
 
     function spinWheel() {
         if (isSpinning || names.length === 0) return;
-        getAudioCtx(); // unlock audio
+        getAudioCtx();
         isSpinning   = true;
         spinVelocity = Math.random() * 0.2 + 0.6;
         spinBtn.style.pointerEvents = 'none';
-        let lastSlice = -1;
-        let lastTime  = null;
 
-        function animate(timestamp) {
-            if (!lastTime) lastTime = timestamp;
-            const delta = Math.min((timestamp - lastTime) / 16.67, 2.5); // chuẩn hoá theo 60fps, giới hạn tối đa
-            lastTime = timestamp;
+        // Theo dõi slice bằng góc chuẩn hoá về [0, 2PI] - tránh lỗi khi angle lớn
+        const sliceAngle = (2 * Math.PI) / names.length;
+        let lastSliceIdx = -1;
 
-            currentAngle += spinVelocity * delta;
-            spinVelocity *= Math.pow(0.991, delta); // ma sát đều theo thời gian thực
+        function getSliceAtPointer() {
+            // Mũi tên ở bên phải (góc 0), tính slice nào đang ở đó
+            const norm = ((2 * Math.PI) - (currentAngle % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
+            return Math.floor(norm / sliceAngle) % names.length;
+        }
 
+        function animate() {
+            currentAngle += spinVelocity;
+            // Giới hạn angle để tránh float overflow sau nhiều vòng
+            if (currentAngle > 1000 * Math.PI) currentAngle -= 1000 * Math.PI;
+
+            spinVelocity *= 0.991;
             canvas.style.transform = `rotate(${currentAngle}rad)`;
 
-            const sl = Math.floor(currentAngle / ((2*Math.PI) / names.length));
-            if (sl !== lastSlice) { playTickSound(); lastSlice = sl; }
+            // Tick âm thanh + mũi tên: dựa trên slice tại vị trí mũi tên, không phải angle tuyệt đối
+            const curSlice = getSliceAtPointer();
+            if (curSlice !== lastSliceIdx) {
+                playTickSound();
+                lastSliceIdx = curSlice;
+            }
 
             if (spinVelocity > 0.003) {
                 animationFrame = requestAnimationFrame(animate);
             } else {
-                // Dừng mượt: giảm dần đến 0 thay vì cắt đột ngột
-                spinVelocity = 0;
                 isSpinning   = false;
-                currentAngle = currentAngle % (2*Math.PI);
+                currentAngle = currentAngle % (2 * Math.PI);
                 cancelAnimationFrame(animationFrame);
                 spinBtn.style.pointerEvents = 'auto';
-                setTimeout(announceWinner, 120); // delay nhỏ cho mượt
+                setTimeout(announceWinner, 150);
             }
         }
         requestAnimationFrame(animate);
