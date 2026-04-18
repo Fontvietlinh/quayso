@@ -45,8 +45,6 @@
             color: #fff;
             text-shadow: 0 4px 18px rgba(124,92,255,0.35), 0 0 30px rgba(54,215,255,0.15);
         }
-
-        /* ===== LAYOUT ===== */
         .container {
             position: relative;
             z-index: 1;
@@ -67,8 +65,6 @@
             justify-content: center;
             align-items: center;
         }
-
-        /* ===== VÒNG QUAY ===== */
         .wheel-stage {
             position: relative;
             width: min(76vh, 56vw);
@@ -76,8 +72,6 @@
             min-width: 300px;
             min-height: 300px;
         }
-
-        /* Lớp glow phía sau */
         .wheel-glow {
             position: absolute;
             inset: 5%;
@@ -86,8 +80,6 @@
             filter: blur(30px);
             pointer-events: none;
         }
-
-        /* Viền vàng ngoài cùng */
         .wheel-rim {
             position: absolute;
             inset: 0;
@@ -100,8 +92,6 @@
                 0 0 0 1px rgba(255,255,255,0.18);
             pointer-events: none;
         }
-
-        /* Canvas wrapper - nằm bên trong viền */
         .wheel-canvas-wrap {
             position: absolute;
             inset: 7%;
@@ -120,8 +110,6 @@
             transform: rotate(0deg);
             display: block;
         }
-
-        /* LED ring */
         .led-ring {
             position: absolute;
             inset: -8px;
@@ -140,8 +128,6 @@
             0%,100% { opacity: 0.5; transform: scale(0.88); }
             50%      { opacity: 1;   transform: scale(1.22); }
         }
-
-        /* Mũi tên */
         .pointer {
             position: absolute;
             top: 50%;
@@ -154,8 +140,6 @@
             filter: drop-shadow(-8px 8px 12px rgba(0,0,0,0.40));
             z-index: 10;
         }
-
-        /* Nút QUAY */
         .spin-btn {
             position: absolute;
             top: 50%;
@@ -188,8 +172,6 @@
         }
         .spin-btn:hover  { transform: translate(-50%,-50%) scale(1.06); filter: brightness(1.05); }
         .spin-btn:active { transform: translate(-50%,-46%) scale(0.96); }
-
-        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 340px;
             flex-shrink: 0;
@@ -286,7 +268,6 @@
         }
         .btn-reset { background: linear-gradient(135deg, #ffbe55, #f07d16); }
         .btn-clear  { background: linear-gradient(135deg, #ff6b86, #db2449); }
-
         .links-section {
             padding: 16px;
             display: flex;
@@ -313,31 +294,17 @@
             color: #c8f4ff;
         }
         .btn-contact:hover { color: #ffd2df !important; }
-
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 1100px) {
-            .container {
-                flex-direction: column;
-                align-items: center;
-                padding: 12px 20px 30px;
-            }
+            .container { flex-direction: column; align-items: center; padding: 12px 20px 30px; }
             .sidebar { width: min(100%, 600px); }
-            .wheel-stage {
-                width: min(86vw, 560px);
-                height: min(86vw, 560px);
-            }
+            .wheel-stage { width: min(86vw, 560px); height: min(86vw, 560px); }
             .input-section { min-height: 380px; max-height: none; }
         }
         @media (max-width: 600px) {
             header { padding-top: 16px; }
             header h1 { letter-spacing: 1.5px; }
             .container { padding: 8px 12px 22px; gap: 18px; }
-            .wheel-stage {
-                width: min(92vw, 420px);
-                height: min(92vw, 420px);
-                min-width: 260px;
-                min-height: 260px;
-            }
+            .wheel-stage { width: min(92vw, 420px); height: min(92vw, 420px); min-width: 260px; min-height: 260px; }
             .pointer { right: -14px; width: 65px; height: 44px; }
             .spin-btn { width: 90px; height: 90px; font-size: 22px; border-width: 5px; }
             .links-section a { font-size: 13px; }
@@ -385,14 +352,14 @@
         <div class="links-section glass-card">
             <a href="https://docs.google.com/spreadsheets/d/1FJZfdUx50TFt2mWM11f9i2Lm8f2Bsxum/edit?usp=sharing&ouid=1.0875907886142684e+20&rtpof=true&sd=true" target="_blank">📚 Bộ font Việt Hoá 4500 Font</a>
             <a href="https://docs.google.com/spreadsheets/d/1LCw8ESaDGv3I9PAAimqbUHFhhIUR6CWmPdkkwObyQYY/edit?usp=sharing" target="_blank">🔥 Bộ font Việt hoá Tháng 1-T6/2026</a>
-            <a href="https://m.me/FontVietLinh" target="_blank" class="btn-contact">💬 Nhắn tin cho Font Việt Linh</a>
+            <a href="#" id="btn-msg" class="btn-contact">💬 Nhắn tin cho Font Việt Linh</a>
         </div>
     </div>
 </main>
 
 <script>
-    const canvas  = document.getElementById('canvas');
-    const ctx     = canvas.getContext('2d');
+    const canvas      = document.getElementById('canvas');
+    const ctx         = canvas.getContext('2d');
     const namesInput  = document.getElementById('names-input');
     const entryCount  = document.getElementById('entry-count');
     const spinBtn     = document.getElementById('spin-btn');
@@ -402,31 +369,43 @@
     const colors = ["#FF5A5F","#3BCEAC","#FFC857","#2D93AD","#9B5DE5","#F15BB5","#00BBF9","#00F5D4","#FCA311","#E01A4F","#06D6A0","#118AB2"];
     const defaultNames = "Tý\nSửu\nDần\nMão\nThìn\nTỵ\nNgọ\nMùi\nThân\nDậu\nTuất\nHợi";
 
-    let names = [];
+    let names        = [];
     let currentAngle = 0;
     let isSpinning   = false;
     let spinVelocity = 0;
     let animationFrame;
 
-    // Load localStorage (key mới v2 tránh conflict)
     const savedData = localStorage.getItem('fontVietLinh_wheelData_v2');
     namesInput.value = (savedData && savedData.trim() !== '') ? savedData : defaultNames;
 
     // ===== ÂM THANH =====
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = new AudioCtx();
-
-    function playTickSound() {
+    let audioCtx;
+    function getAudioCtx() {
+        if (!audioCtx) audioCtx = new AudioCtx();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc  = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(450, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.03);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.03);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.03);
+        return audioCtx;
+    }
+
+    // Tiếng TẠCH cơ học - noise burst qua bandpass filter
+    function playTickSound() {
+        const ac  = getAudioCtx();
+        const len = Math.floor(ac.sampleRate * 0.022);
+        const buf = ac.createBuffer(1, len, ac.sampleRate);
+        const d   = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) {
+            d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 5);
+        }
+        const src = ac.createBufferSource();
+        src.buffer = buf;
+        const bpf = ac.createBiquadFilter();
+        bpf.type  = 'bandpass';
+        bpf.frequency.value = 1800;
+        bpf.Q.value = 1.0;
+        const gain = ac.createGain();
+        gain.gain.value = 1.8;
+        src.connect(bpf); bpf.connect(gain); gain.connect(ac.destination);
+        src.start();
 
         pointer.style.transition = 'transform 0.04s ease-out';
         pointer.style.transform  = 'translateY(-50%) rotate(14deg)';
@@ -434,17 +413,17 @@
     }
 
     function playWinSound() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const ac = getAudioCtx();
         [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
             setTimeout(() => {
-                const osc  = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
+                const osc  = ac.createOscillator();
+                const gain = ac.createGain();
+                osc.connect(gain); gain.connect(ac.destination);
                 osc.type = 'sine'; osc.frequency.value = freq;
-                gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
-                osc.start(); osc.stop(audioCtx.currentTime + 1.5);
+                gain.gain.setValueAtTime(0, ac.currentTime);
+                gain.gain.linearRampToValueAtTime(0.2, ac.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 1.5);
+                osc.start(); osc.stop(ac.currentTime + 1.5);
             }, i * 80);
         });
     }
@@ -452,12 +431,12 @@
     // ===== LED =====
     function buildLEDs() {
         ledRingEl.innerHTML = '';
-        const total  = window.innerWidth <= 600 ? 20 : 28;
+        const total     = window.innerWidth <= 600 ? 20 : 28;
         const ledColors = ['#ffd86b','#36d7ff','#ff4db8','#9eff6b','#fff2b3'];
-        const size   = ledRingEl.offsetWidth || 400;
-        const r      = size / 2 - 4;
-        const cx     = size / 2;
-        const cy     = size / 2;
+        const size      = ledRingEl.offsetWidth || 400;
+        const r  = size / 2 - 4;
+        const cx = size / 2;
+        const cy = size / 2;
         for (let i = 0; i < total; i++) {
             const dot   = document.createElement('span');
             dot.className = 'led';
@@ -480,9 +459,9 @@
     function drawWheel() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (names.length === 0) return;
-        const cx = canvas.width  / 2;
-        const cy = canvas.height / 2;
-        const R  = canvas.width  / 2 - 14;
+        const cx    = canvas.width  / 2;
+        const cy    = canvas.height / 2;
+        const R     = canvas.width  / 2 - 14;
         const slice = (2 * Math.PI) / names.length;
 
         ctx.save();
@@ -491,12 +470,12 @@
         ctx.clip();
 
         for (let i = 0; i < names.length; i++) {
-            const sa  = i * slice;
-            const ea  = sa + slice;
-            const mid = sa + slice / 2;
+            const sa   = i * slice;
+            const ea   = sa + slice;
+            const mid  = sa + slice / 2;
             const base = colors[i % colors.length];
-            const hx  = cx + Math.cos(mid) * R * 0.25;
-            const hy  = cy + Math.sin(mid) * R * 0.25;
+            const hx   = cx + Math.cos(mid) * R * 0.25;
+            const hy   = cy + Math.sin(mid) * R * 0.25;
 
             const grad = ctx.createRadialGradient(hx, hy, R * 0.05, cx, cy, R);
             grad.addColorStop(0,   adjustColor(base,  48));
@@ -513,68 +492,47 @@
             ctx.lineWidth = 4;
             ctx.stroke();
 
-            // Gloss
             ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, R, sa, ea);
-            ctx.closePath();
-            ctx.clip();
-            const gloss = ctx.createLinearGradient(cx, cy - R, cx, cy + R);
+            ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,sa,ea); ctx.closePath(); ctx.clip();
+            const gloss = ctx.createLinearGradient(cx, cy-R, cx, cy+R);
             gloss.addColorStop(0,    'rgba(255,255,255,0.20)');
             gloss.addColorStop(0.25, 'rgba(255,255,255,0.06)');
             gloss.addColorStop(1,    'rgba(0,0,0,0.09)');
             ctx.fillStyle = gloss;
-            ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+            ctx.fillRect(cx-R, cy-R, R*2, R*2);
             ctx.restore();
 
-            // Chữ
             ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(mid);
-            ctx.textAlign    = 'right';
-            ctx.textBaseline = 'middle';
+            ctx.translate(cx, cy); ctx.rotate(mid);
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
             ctx.font = '900 46px "Barlow Condensed","Be Vietnam Pro",Arial,sans-serif';
-            ctx.shadowColor = 'rgba(0,0,0,0.6)';
-            ctx.shadowBlur  = 10;
-            ctx.strokeStyle = 'rgba(0,0,0,0.32)';
-            ctx.lineWidth   = 3;
+            ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 10;
+            ctx.strokeStyle = 'rgba(0,0,0,0.32)'; ctx.lineWidth = 3;
             let txt = names[i];
-            if (txt.length > 20) txt = txt.substring(0, 18) + '...';
-            ctx.strokeText(txt, R - 52, 0);
-            ctx.fillStyle = '#fff';
-            ctx.fillText(txt, R - 52, 0);
+            if (txt.length > 20) txt = txt.substring(0,18) + '...';
+            ctx.strokeText(txt, R-52, 0);
+            ctx.fillStyle = '#fff'; ctx.fillText(txt, R-52, 0);
             ctx.restore();
         }
         ctx.restore();
 
-        // Viền ngoài canvas
         const rimGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        rimGrad.addColorStop(0, 'rgba(255,255,255,0.65)');
+        rimGrad.addColorStop(0,   'rgba(255,255,255,0.65)');
         rimGrad.addColorStop(0.5, 'rgba(255,215,120,0.95)');
-        rimGrad.addColorStop(1, 'rgba(140,74,0,0.90)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.strokeStyle = rimGrad;
-        ctx.lineWidth   = 14;
-        ctx.stroke();
+        rimGrad.addColorStop(1,   'rgba(140,74,0,0.90)');
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+        ctx.strokeStyle = rimGrad; ctx.lineWidth = 14; ctx.stroke();
 
-        // Hub trung tâm
-        const hubGrad = ctx.createRadialGradient(cx - 24, cy - 24, 6, cx, cy, 85);
+        const hubGrad = ctx.createRadialGradient(cx-24, cy-24, 6, cx, cy, 85);
         hubGrad.addColorStop(0,   '#fff8da');
         hubGrad.addColorStop(0.4, '#ffd86b');
         hubGrad.addColorStop(0.7, '#ffb703');
         hubGrad.addColorStop(1,   '#9f5a00');
-        ctx.beginPath();
-        ctx.arc(cx, cy, 76, 0, Math.PI * 2);
-        ctx.fillStyle   = hubGrad;
-        ctx.shadowColor = 'rgba(0,0,0,0.38)';
-        ctx.shadowBlur  = 18;
-        ctx.fill();
-        ctx.shadowBlur  = 0;
-        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-        ctx.lineWidth   = 7;
-        ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, 76, 0, Math.PI*2);
+        ctx.fillStyle = hubGrad;
+        ctx.shadowColor = 'rgba(0,0,0,0.38)'; ctx.shadowBlur = 18;
+        ctx.fill(); ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 7; ctx.stroke();
     }
 
     // ===== LOGIC =====
@@ -591,13 +549,13 @@
     function getCurrentIndex() {
         if (names.length === 0) return -1;
         const slice = (2 * Math.PI) / names.length;
-        const norm  = (currentAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-        return Math.floor(((2 * Math.PI - norm) % (2 * Math.PI)) / slice);
+        const norm  = (currentAngle % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+        return Math.floor(((2*Math.PI - norm) % (2*Math.PI)) / slice);
     }
 
     function spinWheel() {
         if (isSpinning || names.length === 0) return;
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        getAudioCtx(); // unlock audio
         isSpinning   = true;
         spinVelocity = Math.random() * 0.2 + 0.6;
         spinBtn.style.pointerEvents = 'none';
@@ -607,13 +565,13 @@
             currentAngle += spinVelocity;
             spinVelocity *= 0.991;
             canvas.style.transform = `rotate(${currentAngle}rad)`;
-            const sl = Math.floor(currentAngle / ((2 * Math.PI) / names.length));
+            const sl = Math.floor(currentAngle / ((2*Math.PI) / names.length));
             if (sl !== lastSlice) { playTickSound(); lastSlice = sl; }
             if (spinVelocity > 0.0015) {
                 animationFrame = requestAnimationFrame(animate);
             } else {
                 isSpinning   = false;
-                currentAngle = currentAngle % (2 * Math.PI);
+                currentAngle = currentAngle % (2*Math.PI);
                 cancelAnimationFrame(animationFrame);
                 spinBtn.style.pointerEvents = 'auto';
                 announceWinner();
@@ -626,18 +584,17 @@
         const idx    = getCurrentIndex();
         const winner = names[idx];
         playWinSound();
-        confetti({ particleCount: 220, spread: 90, origin: { y: 0.6 }, colors: ['#ffd86b','#36d7ff','#ff4db8','#ffffff','#7c5cff'] });
+        confetti({ particleCount:220, spread:90, origin:{y:0.6}, colors:['#ffd86b','#36d7ff','#ff4db8','#ffffff','#7c5cff'] });
         Swal.fire({
             title: '🎉 XUẤT SẮC 🎉',
-            html: `Chúc mừng người may mắn:<br><br><strong style="font-size:34px;color:#ff5a5f">${winner}</strong>`,
-            icon: 'success',
+            html:  `Chúc mừng người may mắn:<br><br><strong style="font-size:34px;color:#ff5a5f">${winner}</strong>`,
+            icon:  'success',
             showCancelButton: true,
             confirmButtonText: 'Loại người này',
             cancelButtonText:  'Giữ lại',
             confirmButtonColor: '#db2449',
             cancelButtonColor:  '#243b63',
-            background: '#0f1f38',
-            color: '#eef4ff'
+            background: '#0f1f38', color: '#eef4ff'
         }).then(r => {
             if (r.isConfirmed) {
                 names.splice(idx, 1);
@@ -654,12 +611,11 @@
     document.getElementById('shuffle-btn').addEventListener('click', () => {
         if (isSpinning) return;
         let arr = namesInput.value.split('\n').filter(n => n.trim());
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
+        for (let i = arr.length-1; i > 0; i--) {
+            const j = Math.floor(Math.random()*(i+1));
+            [arr[i],arr[j]] = [arr[j],arr[i]];
         }
-        namesInput.value = arr.join('\n');
-        updateNames();
+        namesInput.value = arr.join('\n'); updateNames();
     });
 
     document.getElementById('clear-btn').addEventListener('click', () => {
@@ -669,30 +625,30 @@
     document.getElementById('reset-btn').addEventListener('click', () => {
         if (isSpinning) return;
         Swal.fire({
-            title: 'Khôi phục?',
-            text: 'Quay về danh sách 12 con giáp mặc định.',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Khôi phục',
-            confirmButtonColor: '#f07d16',
-            background: '#0f1f38',
-            color: '#eef4ff'
-        }).then(r => {
-            if (r.isConfirmed) { namesInput.value = defaultNames; updateNames(); }
-        });
+            title: 'Khôi phục?', text: 'Quay về danh sách 12 con giáp mặc định.',
+            icon: 'question', showCancelButton: true,
+            confirmButtonText: 'Khôi phục', confirmButtonColor: '#f07d16',
+            background: '#0f1f38', color: '#eef4ff'
+        }).then(r => { if (r.isConfirmed) { namesInput.value = defaultNames; updateNames(); } });
+    });
+
+    // Nhắn tin thông minh: mobile → m.me (app), desktop → facebook messages (web)
+    document.getElementById('btn-msg').addEventListener('click', e => {
+        e.preventDefault();
+        const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+        const url = isMobile
+            ? 'https://m.me/FontVietLinh'
+            : 'https://www.facebook.com/messages/t/FontVietLinh';
+        window.open(url, '_blank');
     });
 
     window.addEventListener('resize', buildLEDs);
 
-    // ===== KHỞI TẠO - Vẽ ngay không chờ font =====
-    updateNames();   // Vẽ canvas ngay lập tức với system font
+    // ===== KHỞI TẠO =====
+    updateNames();
     buildLEDs();
 
-    // Vẽ lại khi font đã load xong để chữ đẹp hơn
-    window.addEventListener('load', () => {
-        buildLEDs();
-        drawWheel();
-    });
+    window.addEventListener('load', () => { buildLEDs(); drawWheel(); });
     if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(() => { drawWheel(); });
     }
