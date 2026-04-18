@@ -107,8 +107,10 @@
             height: 100%;
             border-radius: 50%;
             will-change: transform;
-            transform: rotate(0deg);
+            transform: rotate(0deg) translateZ(0);
             display: block;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         .led-ring {
             position: absolute;
@@ -123,6 +125,9 @@
             border-radius: 50%;
             box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
             animation: ledPulse 1.4s infinite ease-in-out;
+        }
+        .spinning .led {
+            animation: none;
         }
         @keyframes ledPulse {
             0%,100% { opacity: 0.5; transform: scale(0.88); }
@@ -542,7 +547,7 @@
         entryCount.innerText = names.length;
         localStorage.setItem('fontVietLinh_wheelData_v2', text);
         currentAngle = 0;
-        canvas.style.transform = 'rotate(0deg)';
+        canvas.style.transform = 'rotate(0rad)';
         drawWheel();
     }
 
@@ -559,6 +564,7 @@
         isSpinning   = true;
         spinVelocity = Math.random() * 0.2 + 0.6;
         spinBtn.style.pointerEvents = 'none';
+        canvas.closest('.wheel-stage').classList.add('spinning');
 
         // Theo dõi slice bằng góc chuẩn hoá về [0, 2PI] - tránh lỗi khi angle lớn
         const sliceAngle = (2 * Math.PI) / names.length;
@@ -576,7 +582,7 @@
             if (currentAngle > 1000 * Math.PI) currentAngle -= 1000 * Math.PI;
 
             spinVelocity *= 0.991;
-            canvas.style.transform = `rotate(${currentAngle}rad)`;
+            canvas.style.transform = `rotate3d(0,0,1,${currentAngle}rad)`;
 
             // Tick âm thanh + mũi tên: dựa trên slice tại vị trí mũi tên, không phải angle tuyệt đối
             const curSlice = getSliceAtPointer();
@@ -592,6 +598,8 @@
                 currentAngle = currentAngle % (2 * Math.PI);
                 cancelAnimationFrame(animationFrame);
                 spinBtn.style.pointerEvents = 'auto';
+                canvas.closest('.wheel-stage').classList.remove('spinning');
+                canvas.style.transform = `rotate(${currentAngle}rad)`;
                 setTimeout(announceWinner, 150);
             }
         }
