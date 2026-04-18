@@ -1,269 +1,79 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vòng Quay May Mắn - Font Việt Linh</title>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@900&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        :root {
-            --bg: #050a14; --primary: #36d7ff; --gold: #ffb703; --panel: rgba(15, 31, 56, 0.9);
-            --font-main: 'Roboto Condensed', sans-serif; --font-heading: 'Barlow Condensed', sans-serif;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: var(--font-main); background: var(--bg); color: #fff;
-            min-height: 100vh; display: flex; flex-direction: column;
-            background: radial-gradient(circle at top, #0f1f38, #050a14);
-            overflow: hidden; font-weight: 700;
-        }
-        header { padding: 20px 20px 5px; text-align: center; }
-        header h1 {
-            font-family: var(--font-heading); font-size: clamp(28px, 4vw, 45px);
-            text-transform: uppercase; letter-spacing: 2px;
-            background: linear-gradient(180deg, #fff, var(--primary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .main-container {
-            display: flex; flex: 1; max-width: 1800px; margin: 0 auto;
-            width: 100%; padding: 10px 30px; gap: 40px; align-items: center; justify-content: center;
-        }
-        .wheel-section { flex: 2; display: flex; justify-content: center; align-items: center; position: relative; }
-        .wheel-outer {
-            position: relative; width: min(85vh, 750px); height: min(85vh, 750px);
-            background: conic-gradient(#fff5c2, #ffcb52, #ff9f1c, #ffd76a, #fff5c2);
-            border-radius: 50%; padding: 15px; box-shadow: 0 0 80px rgba(0,0,0,0.8);
-        }
-        .led-container { position: absolute; inset: 0; border-radius: 50%; z-index: 5; pointer-events: none; }
-        .led {
-            position: absolute; width: 12px; height: 12px; background: #fff; border-radius: 50%;
-            top: 2px; left: 50%; transform: translateX(-50%);
-            box-shadow: 0 0 10px #fff, 0 0 15px var(--gold);
-            animation: led-blink 0.8s infinite alternate;
-        }
-        @keyframes led-blink { 0% { opacity: 0.4; } 100% { opacity: 1; filter: brightness(1.3); } }
-        .canvas-wrap { width: 100%; height: 100%; background: #0d1d35; border-radius: 50%; overflow: hidden; }
-        canvas { 
-            width: 100%; height: 100%; display: block; will-change: transform; 
-            transition: transform 6s cubic-bezier(0.15, 0, 0, 1); 
-        }
-        .pointer {
-            position: absolute; top: 50%; right: -30px; transform: translateY(-50%);
-            width: 85px; height: 55px; background: linear-gradient(to left, #ff3d71, #aa1238);
-            clip-path: polygon(0 50%, 100% 0, 100% 100%); z-index: 10;
-            transform-origin: center right; 
-        }
-        .spin-btn {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 115px; height: 115px; background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
-            border: 6px solid #fff; border-radius: 50%; cursor: pointer; z-index: 20;
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-heading); font-weight: 900; font-size: 26px; color: #3a2100;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6); transition: 0.2s;
-        }
-        .sidebar { flex: 0.8; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
-        .card { background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 22px; }
-        textarea {
-            width: 100%; height: 220px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px; padding: 15px; color: #fff; font-size: 16px; outline: none; resize: none; 
-            line-height: 1.6; font-family: var(--font-main); font-weight: 700;
-        }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn { 
-            padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; 
-            text-transform: uppercase; font-size: 13px; transition: 0.2s; font-family: var(--font-main);
-        }
-        .btn-main { grid-column: span 2; background: var(--primary); color: #000; font-size: 15px; }
-        .btn-sec { background: rgba(255,255,255,0.08); color: #fff; }
-        @media (max-width: 1100px) {
-            .main-container { flex-direction: column; padding: 10px; overflow-y: auto; }
-            .wheel-outer { width: 90vw; height: 90vw; }
-            .pointer { width: 55px; height: 35px; right: -15px; }
-            .sidebar { max-width: 100%; padding-bottom: 50px; }
-            body { overflow-y: auto; }
-        }
-    </style>
-</head>
-<body>
-<header><h1>Vòng Quay May Mắn Font Việt Linh</h1></header>
-<main class="main-container">
-    <div class="wheel-section">
-        <div class="wheel-outer" id="outerFrame">
-            <div class="led-container" id="ledContainer"></div>
-            <div class="canvas-wrap"><canvas id="wheelCanvas" width="800" height="800"></canvas></div>
-            <div class="pointer" id="pointer"></div>
-            <div class="spin-btn" id="spinBtn">QUAY</div>
-        </div>
-    </div>
-    <div class="sidebar">
-        <div class="card">
-            <h3>DANH SÁCH <span id="count" style="color:var(--primary)">0</span></h3>
-            <textarea id="inputNames" placeholder="Mỗi người một dòng..."></textarea>
-            <div class="btn-group">
-                <button class="btn btn-main" onclick="shuffleNames()">Xáo trộn danh sách</button>
-                <button class="btn btn-sec" onclick="resetDefault()">Mặc định</button>
-                <button class="btn btn-sec" onclick="clearAll()">Xóa hết</button>
-            </div>
-        </div>
-        <div class="card" style="display:flex; flex-direction:column; gap:10px;">
-            <a href="https://docs.google.com/spreadsheets/d/1FJZfdUx50TFt2mWM11f9i2Lm8f2Bsxum/edit" target="_blank" style="text-decoration:none;" class="btn btn-sec">📚 BỘ FONT VIỆT HOÁ 4500 FONT</a>
-            <a href="https://docs.google.com/spreadsheets/d/1LCw8ESaDGv3I9PAAimqbUHFhhIUR6CWmPdkkwObyQYY/edit" target="_blank" style="text-decoration:none;" class="btn btn-sec">🔥 BỘ FONT VIỆT HOÁ T6/2026</a>
-            <button id="btn-msg" class="btn btn-sec" style="color: #ff7aa2;">💬 NHẮN TIN CHO FONT VIỆT LINH</button>
-        </div>
-    </div>
-</main>
+// --- ĐOẠN CODE ÂM THANH MỚI CHO LINH ---
 
-<script>
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d', { alpha: false });
-    const inputNames = document.getElementById('inputNames');
-    const pointer = document.getElementById('pointer');
-    const spinBtn = document.getElementById('spinBtn');
-    const ledContainer = document.getElementById('ledContainer');
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    const colors = ["#FF5A5F", "#3BCEAC", "#FFC857", "#2D93AD", "#9B5DE5", "#F15BB5", "#00BBF9", "#00F5D4", "#FCA311", "#E01A4F", "#06D6A0", "#118AB2"];
-    const defaultData = "Tý\nSửu\nDần\nMão\nThìn\nTỵ\nNgọ\nMùi\nThân\nDậu\nTuất\nHợi";
-    let names = [];
-    let currentRotation = 0;
-    let isSpinning = false;
+function playMechanicalTick() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 
-    function buildLEDs() {
-        ledContainer.innerHTML = '';
-        const rect = document.getElementById('outerFrame').getBoundingClientRect();
-        for (let i = 0; i < 24; i++) {
-            const led = document.createElement('div');
-            led.className = 'led';
-            led.style.transform = `translateX(-50%) rotate(${i * 15}deg)`;
-            led.style.transformOrigin = `50% ${rect.width/2 - 2}px`;
-            ledContainer.appendChild(led);
-        }
-    }
+    const startTime = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playTing() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1300, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+    // Dùng sóng tam giác để có độ đanh của gỗ/nhựa
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(150, startTime);
+    osc.frequency.exponentialRampToValueAtTime(40, startTime + 0.04);
+
+    // Filter để tiếng kêu gọn, không bị vang quá
+    filter.type = 'bandpass';
+    filter.frequency.value = 800;
+    filter.Q.value = 1;
+
+    gain.gain.setValueAtTime(0.15, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.04);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(startTime + 0.04);
+
+    // GIẬT MŨI TÊN (Cải tiến độ nhạy)
+    pointer.style.transition = 'none';
+    pointer.style.transform = 'translateY(-50%) rotate(20deg)';
+    
+    // Ép trình duyệt vẽ lại ngay lập tức
+    pointer.offsetHeight; 
+    
+    pointer.style.transition = 'transform 0.05s ease-out';
+    pointer.style.transform = 'translateY(-50%) rotate(0deg)';
+}
+
+// --- LOGIC THEO DÕI VÒNG QUAY ĐỂ PHÁT ÂM THANH ---
+
+function spin() {
+    if (isSpinning || names.length === 0) return;
+    isSpinning = true;
+    
+    const rounds = 8 + Math.floor(Math.random() * 5);
+    const stopAngle = Math.random() * Math.PI * 2;
+    const targetRotation = currentRotation + (rounds * Math.PI * 2) + stopAngle;
+    
+    canvas.style.transition = "transform 7s cubic-bezier(0.15, 0, 0, 1)";
+    canvas.style.transform = `rotate(${targetRotation}rad)`;
+
+    let lastSliceIdx = -1;
+    function monitor() {
+        if (!isSpinning) return;
         
-        // GIẬT MŨI TÊN
-        pointer.style.transition = 'transform 0.04s ease-out';
-        pointer.style.transform = 'translateY(-50%) rotate(18deg)';
-        setTimeout(() => { pointer.style.transform = 'translateY(-50%) rotate(0deg)'; }, 40);
-    }
+        const currentRealAngle = getCurrentRotation();
+        const sliceAngle = (Math.PI * 2) / names.length;
+        const normalized = (Math.PI * 2 - (currentRealAngle % (Math.PI * 2))) % (Math.PI * 2);
+        const currentIdx = Math.floor(normalized / sliceAngle);
 
-    function draw() {
-        ctx.fillStyle = "#0d1d35"; ctx.fillRect(0, 0, 800, 800);
-        if (names.length === 0) return;
-        const slice = (Math.PI * 2) / names.length;
-        names.forEach((name, i) => {
-            const angle = i * slice;
-            ctx.beginPath(); ctx.moveTo(400, 400); ctx.arc(400, 400, 392, angle, angle + slice);
-            ctx.fillStyle = colors[i % colors.length]; ctx.fill();
-            ctx.strokeStyle = "rgba(255,255,255,0.15)"; ctx.stroke();
-            ctx.save(); ctx.translate(400, 400); ctx.rotate(angle + slice / 2);
-            ctx.textAlign = "right"; ctx.fillStyle = "#fff";
-            ctx.font = '700 36px "Roboto Condensed", sans-serif';
-            ctx.fillText(name.substring(0, 16), 345, 12); ctx.restore();
-        });
-    }
-
-    // HÀM ĐỌC GÓC QUAY THỰC TẾ TỪ GPU
-    function getCurrentRotation() {
-        const style = window.getComputedStyle(canvas);
-        const matrix = style.transform || style.webkitTransform;
-        if (matrix === 'none' || !matrix) return 0;
-        const values = matrix.split('(')[1].split(')')[0].split(',');
-        const a = values[0]; const b = values[1];
-        let angle = Math.atan2(b, a);
-        if (angle < 0) angle += (Math.PI * 2);
-        return angle;
-    }
-
-    function spin() {
-        if (isSpinning || names.length === 0) return;
-        isSpinning = true;
-        const rounds = 8 + Math.floor(Math.random() * 5);
-        const stopAngle = Math.random() * Math.PI * 2;
-        const targetRotation = currentRotation + (rounds * Math.PI * 2) + stopAngle;
-        
-        canvas.style.transition = "transform 6s cubic-bezier(0.15, 0, 0, 1)";
-        canvas.style.transform = `rotate(${targetRotation}rad)`;
-
-        let lastSliceIdx = -1;
-        
-        // VÒNG LẶP THEO DÕI GÓC QUAY THẬT
-        function monitor() {
-            if (!isSpinning) return;
-            const currentRealAngle = getCurrentRotation();
-            const sliceAngle = (Math.PI * 2) / names.length;
-            
-            // Tính xem mũi tên đang ở slice nào (Mũi tên ở vị trí 0 rad - bên phải)
-            const normalized = (Math.PI * 2 - (currentRealAngle % (Math.PI * 2))) % (Math.PI * 2);
-            const currentIdx = Math.floor(normalized / sliceAngle);
-
-            if (currentIdx !== lastSliceIdx) {
-                if (lastSliceIdx !== -1) playTing(); // Không kêu lúc vừa bấm
-                lastSliceIdx = currentIdx;
-            }
-            requestAnimationFrame(monitor);
+        if (currentIdx !== lastSliceIdx) {
+            playMechanicalTick(); // Gọi âm thanh cơ khí mới
+            lastSliceIdx = currentIdx;
         }
         requestAnimationFrame(monitor);
-
-        setTimeout(() => {
-            isSpinning = false;
-            currentRotation = targetRotation;
-            const finalAngle = (Math.PI * 2 - (currentRotation % (Math.PI * 2))) % (Math.PI * 2);
-            const idx = Math.floor(finalAngle / ((Math.PI * 2) / names.length)) % names.length;
-            
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            Swal.fire({
-                title: '🎉 XUẤT SẮC 🎉',
-                html: `<b style="font-size:32px; color:#ff3d71">${names[idx]}</b>`,
-                icon: 'success',
-                showCancelButton: true, confirmButtonText: 'Loại người này', cancelButtonText: 'Giữ lại',
-                confirmButtonColor: '#db2449', cancelButtonColor: '#243b63',
-                background: '#0f1f38', color: '#fff'
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    names.splice(idx, 1);
-                    inputNames.value = names.join('\n');
-                    update();
-                }
-            });
-        }, 6100);
     }
+    requestAnimationFrame(monitor);
 
-    function update() {
-        names = inputNames.value.split('\n').map(t => t.trim()).filter(t => t);
-        document.getElementById('count').innerText = names.length;
-        localStorage.setItem('fv_wheel_v7', inputNames.value);
-        draw();
-    }
-    function shuffleNames() { names.sort(() => Math.random() - 0.5); inputNames.value = names.join('\n'); update(); }
-    function resetDefault() { if(isSpinning) return; inputNames.value = defaultData; update(); }
-    function clearAll() { if(isSpinning) return; inputNames.value = ""; update(); }
-
-    document.getElementById('btn-msg').onclick = () => {
-        const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-        window.open(isMobile ? 'https://m.me/FontVietLinh' : 'https://www.facebook.com/messages/t/FontVietLinh', '_blank');
-    };
-
-    spinBtn.onclick = spin;
-    inputNames.oninput = update;
-    window.addEventListener('resize', buildLEDs);
-    const saved = localStorage.getItem('fv_wheel_v7');
-    inputNames.value = saved || defaultData;
-    update();
-    setTimeout(buildLEDs, 300);
-</script>
-</body>
-</html>
+    setTimeout(() => {
+        isSpinning = false;
+        currentRotation = targetRotation;
+        // ... (Giữ nguyên đoạn hiện Swal và Confetti của Linh) ...
+    }, 7100);
+}
