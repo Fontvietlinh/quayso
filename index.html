@@ -31,15 +31,16 @@
         header { padding: 15px 10px; text-align: center; }
         header h1 {
             font-family: var(--font-heading);
-            /* Ép 1 hàng trên mobile */
-            font-size: clamp(18px, 4.5vw, 45px);
-            white-space: nowrap;
+            font-size: clamp(24px, 5vw, 48px);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             background: linear-gradient(180deg, #fff, var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            line-height: 1.2;
         }
+        /* Xuống hàng trên Mobile cho Font Việt Linh */
+        header h1 span { display: block; font-size: 0.8em; }
 
         .main-container {
             display: flex;
@@ -62,8 +63,8 @@
         }
         .wheel-outer {
             position: relative;
-            width: min(85vh, 750px); 
-            height: min(85vh, 750px);
+            width: min(85vh, 760px); 
+            height: min(85vh, 760px);
             background: conic-gradient(#fff5c2, #ffcb52, #ff9f1c, #ffd76a, #fff5c2);
             border-radius: 50%;
             padding: 12px;
@@ -74,7 +75,7 @@
         .led {
             position: absolute; width: 12px; height: 12px; background: #fff; border-radius: 50%;
             top: 2px; left: 50%; transform: translateX(-50%);
-            transform-origin: 50% 375px; 
+            transform-origin: 50% 380px; 
             box-shadow: 0 0 15px #fff, 0 0 25px var(--gold);
             animation: led-flash 0.4s infinite alternate;
         }
@@ -90,19 +91,19 @@
         }
 
         .pointer {
-            position: absolute; top: 50%; right: -30px; transform: translateY(-50%);
-            width: 80px; height: 50px; background: linear-gradient(to left, #ff3d71, #aa1238);
+            position: absolute; top: 50%; right: -35px; transform: translateY(-50%);
+            width: 85px; height: 55px; background: linear-gradient(to left, #ff3d71, #aa1238);
             clip-path: polygon(0 50%, 100% 0, 100% 100%); z-index: 10;
             transform-origin: center right;
         }
         .spin-btn {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 100px; height: 100px; /* Thu nhỏ nút quay xíu */
+            width: 130px; height: 130px; /* To lên cho cân đối trên PC */
             background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
-            border: 5px solid #fff; border-radius: 50%; cursor: pointer; z-index: 20;
+            border: 6px solid #fff; border-radius: 50%; cursor: pointer; z-index: 20;
             display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-heading); font-weight: 900; font-size: 24px; color: #3a2100;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.7); transition: 0.2s;
+            font-family: var(--font-heading); font-weight: 900; font-size: 28px; color: #3a2100;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7); transition: 0.2s;
         }
         .spin-btn:active { transform: translate(-50%, -50%) scale(0.85); }
 
@@ -111,7 +112,7 @@
         .card h3 { font-family: var(--font-main); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; color: var(--primary); }
         
         textarea {
-            width: 100%; height: 200px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+            width: 100%; height: 210px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 18px; padding: 15px; color: #fff; font-size: 16px; outline: none; resize: none; 
             line-height: 1.6; font-family: var(--font-main); font-weight: 700;
         }
@@ -132,11 +133,11 @@
 
         @media (max-width: 1100px) {
             .main-container { flex-direction: column; padding: 10px; overflow-y: auto; }
-            header h1 { letter-spacing: 0.5px; } /* Giảm nhẹ để vừa hàng */
-            .wheel-outer { width: 90vw; height: 90vw; padding: 10px; }
-            .led { transform-origin: 50% 45vw; width: 10px; height: 10px; } 
-            .pointer { width: 55px; height: 35px; right: -15px; }
-            .spin-btn { width: 85px; height: 85px; font-size: 20px; } /* Nút quay nhỏ hơn trên mobile */
+            header h1 span { display: block; margin-top: 5px; } /* Xuống hàng rõ rệt */
+            .wheel-outer { width: 92vw; height: 92vw; padding: 10px; }
+            .led { transform-origin: 50% 46vw; width: 10px; height: 10px; } 
+            .pointer { width: 60px; height: 40px; right: -20px; }
+            .spin-btn { width: 95px; height: 95px; font-size: 20px; } /* Nút quay cân đối mobile */
             .sidebar { max-width: 100%; padding-bottom: 60px; }
             body { overflow-y: auto; }
         }
@@ -145,7 +146,7 @@
 <body>
 
 <header>
-    <h1>Vòng Quay May Mắn Font Việt Linh</h1>
+    <h1>Vòng Quay May Mắn <span>Font Việt Linh</span></h1>
 </header>
 
 <main class="main-container">
@@ -203,28 +204,25 @@
         }
     }
 
-    // ÂM THANH TO VÀ RÕ HƠN
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Âm thanh Lạch cạch cơ khí
     function playMechanicalTick() {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const startTime = audioCtx.currentTime;
-        
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         const filter = audioCtx.createBiquadFilter();
 
         osc.type = 'triangle'; 
-        osc.frequency.setValueAtTime(200, startTime); // Tăng tần số cơ bản
-        osc.frequency.exponentialRampToValueAtTime(50, startTime + 0.05);
-
-        filter.type = 'highpass'; // Dùng highpass để tiếng "đanh" hơn
-        filter.frequency.value = 500;
-
-        gain.gain.setValueAtTime(0.4, startTime); // Tăng âm lượng to hơn (0.18 -> 0.4)
+        osc.frequency.setValueAtTime(220, startTime); 
+        osc.frequency.exponentialRampToValueAtTime(40, startTime + 0.05);
+        filter.type = 'highpass';
+        filter.frequency.value = 600;
+        gain.gain.setValueAtTime(0.5, startTime); 
         gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05);
 
         osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-
         osc.start(); osc.stop(startTime + 0.05);
 
         pointer.style.transition = 'none';
@@ -232,6 +230,24 @@
         pointer.offsetHeight; 
         pointer.style.transition = 'transform 0.04s ease-out';
         pointer.style.transform = 'translateY(-50%) rotate(0deg)';
+    }
+
+    // Âm thanh Trúng thưởng (Win!)
+    function playWinSound() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // Đô - Mi - Sol - Đô (Quãng tám)
+        notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.15);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.15);
+            gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + i * 0.15 + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.15 + 0.4);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(audioCtx.currentTime + i * 0.15);
+            osc.stop(audioCtx.currentTime + i * 0.15 + 0.4);
+        });
     }
 
     function draw() {
@@ -292,7 +308,9 @@
             const finalAngle = (Math.PI * 2 - (currentRotation % (Math.PI * 2))) % (Math.PI * 2);
             const idx = Math.floor(finalAngle / ((Math.PI * 2) / names.length)) % names.length;
             
-            confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
+            playWinSound();
+            confetti({ particleCount: 220, spread: 90, origin: { y: 0.6 } });
+            
             Swal.fire({
                 title: '🎉 XUẤT SẮC 🎉',
                 html: `<b style="font-size:34px; color:#ff3d71; font-family:'Roboto Condensed'">${names[idx]}</b>`,
@@ -313,7 +331,7 @@
     function update() {
         names = inputNames.value.split('\n').map(t => t.trim()).filter(t => t);
         document.getElementById('count').innerText = names.length;
-        localStorage.setItem('fv_final_master', inputNames.value);
+        localStorage.setItem('fv_pro_v2', inputNames.value);
         draw();
     }
     function shuffleNames() { names.sort(() => Math.random() - 0.5); inputNames.value = names.join('\n'); update(); }
@@ -328,7 +346,7 @@
     spinBtn.onclick = spin;
     inputNames.oninput = update;
     window.addEventListener('resize', buildLEDs);
-    const saved = localStorage.getItem('fv_final_master');
+    const saved = localStorage.getItem('fv_pro_v2');
     inputNames.value = saved || defaultData;
     update();
     setTimeout(buildLEDs, 300);
