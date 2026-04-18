@@ -9,195 +9,163 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root {
-            --panel: rgba(12,24,44,0.80);
-            --panel-border: rgba(255,255,255,0.09);
-            --text: #eef4ff;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Be Vietnam Pro", sans-serif; }
-        html, body { min-height: 100%; }
-        body {
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
+        *{box-sizing:border-box;margin:0;padding:0;font-family:"Be Vietnam Pro",sans-serif}
+        html,body{min-height:100%}
+        body{
+            color:#eef4ff;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;
             background:
-                radial-gradient(circle at 18% 14%, rgba(54,215,255,0.18), transparent 26%),
-                radial-gradient(circle at 82% 10%, rgba(124,92,255,0.20), transparent 28%),
-                linear-gradient(135deg, #07111f 0%, #0f1f38 50%, #162b4d 100%);
+                radial-gradient(circle at 18% 14%,rgba(54,215,255,.18),transparent 26%),
+                radial-gradient(circle at 82% 10%,rgba(124,92,255,.20),transparent 28%),
+                linear-gradient(135deg,#07111f 0%,#0f1f38 50%,#162b4d 100%);
         }
-        header { padding: 22px 20px 6px; text-align: center; }
-        header h1 {
-            font-family: "Barlow Condensed", "Be Vietnam Pro", sans-serif;
-            font-size: clamp(24px, 3.8vw, 50px);
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: #fff;
-            text-shadow: 0 4px 18px rgba(124,92,255,0.35), 0 0 30px rgba(54,215,255,0.15);
+        header{padding:22px 20px 6px;text-align:center}
+        header h1{
+            font-family:"Barlow Condensed","Be Vietnam Pro",sans-serif;
+            font-size:clamp(24px,3.8vw,50px);font-weight:900;
+            text-transform:uppercase;letter-spacing:3px;color:#fff;
+            text-shadow:0 4px 18px rgba(124,92,255,.35),0 0 30px rgba(54,215,255,.15);
         }
-        .container {
-            display: flex; flex: 1;
-            padding: 16px 34px 34px; gap: 32px;
-            max-width: 1560px; margin: 0 auto; width: 100%;
-            align-items: center; justify-content: center;
+        .container{
+            display:flex;flex:1;padding:16px 34px 34px;gap:32px;
+            max-width:1560px;margin:0 auto;width:100%;
+            align-items:center;justify-content:center;
         }
-        .wheel-section {
-            flex: 1; min-width: 0;
-            display: flex; justify-content: center; align-items: center;
+        .wheel-section{flex:1;min-width:0;display:flex;justify-content:center;align-items:center}
+
+        /* ── WHEEL STAGE: chứa tất cả, kích thước cố định ── */
+        .wheel-stage{
+            position:relative;
+            width:min(76vh,56vw);
+            height:min(76vh,56vw);
+            min-width:300px;min-height:300px;
         }
-        .wheel-stage {
-            position: relative;
-            width: min(76vh, 56vw);
-            height: min(76vh, 56vw);
-            min-width: 300px; min-height: 300px;
+
+        /* Glow */
+        .wheel-glow{
+            position:absolute;inset:5%;border-radius:50%;pointer-events:none;
+            background:radial-gradient(circle,rgba(124,92,255,.22),rgba(54,215,255,.10) 45%,transparent 70%);
+            filter:blur(30px);
         }
-        /* Glow nền */
-        .wheel-glow {
-            position: absolute; inset: 5%; border-radius: 50%;
-            background: radial-gradient(circle, rgba(124,92,255,0.22), rgba(54,215,255,0.10) 45%, transparent 70%);
-            filter: blur(30px); pointer-events: none;
-        }
+
         /* Viền vàng */
-        .wheel-rim {
-            position: absolute; inset: 0; border-radius: 50%;
-            background: conic-gradient(#fff5c2, #ffcb52, #ff9f1c, #ffd76a, #fff5c2);
-            box-shadow: 0 28px 60px rgba(0,0,0,0.45), inset 0 2px 0 rgba(255,255,255,0.55);
-            pointer-events: none;
+        .wheel-rim{
+            position:absolute;inset:0;border-radius:50%;pointer-events:none;
+            background:conic-gradient(#fff5c2,#ffcb52,#ff9f1c,#ffd76a,#fff5c2);
+            box-shadow:0 28px 60px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.55);
         }
-        /* Canvas - KHÔNG dùng CSS transform để xoay, xoay bằng ctx */
-        .wheel-canvas-wrap {
-            position: absolute; inset: 7%;
-            border-radius: 50%; overflow: hidden;
-            background: #0d1d35;
+
+        /* Canvas chiếm đúng phần trong viền vàng (7% mỗi bên) */
+        .wheel-canvas-wrap{
+            position:absolute;
+            top:7%;left:7%;width:86%;height:86%;
+            border-radius:50%;overflow:hidden;background:#0d1d35;
         }
-        canvas {
-            width: 100%; height: 100%;
-            display: block;
-            border-radius: 50%;
-            /* KHÔNG có will-change hay transform ở đây */
+        canvas{width:100%;height:100%;display:block}
+
+        /* LED ring bao quanh wheel-stage */
+        .led-ring{position:absolute;inset:-8px;border-radius:50%;pointer-events:none}
+        .led{
+            position:absolute;width:11px;height:11px;border-radius:50%;
+            box-shadow:0 0 10px currentColor,0 0 20px currentColor;
+            animation:ledPulse 1.4s infinite ease-in-out;
         }
-        /* LED */
-        .led-ring {
-            position: absolute; inset: -8px;
-            border-radius: 50%; pointer-events: none;
+        @keyframes ledPulse{0%,100%{opacity:.5;transform:scale(.88)}50%{opacity:1;transform:scale(1.22)}}
+
+        /* Mũi tên - căn theo wheel-stage */
+        .pointer{
+            position:absolute;top:50%;right:-18px;
+            transform:translateY(-50%);
+            width:80px;height:52px;
+            clip-path:polygon(0 50%,100% 0,100% 100%);
+            background:linear-gradient(145deg,#fff0f3,#ff7aa2 35%,#ff3d71 65%,#aa1238);
+            filter:drop-shadow(-6px 6px 10px rgba(0,0,0,.4));
+            z-index:10;transition:transform .04s ease-out;
         }
-        .led {
-            position: absolute; width: 11px; height: 11px;
-            border-radius: 50%;
-            box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
-            animation: ledPulse 1.4s infinite ease-in-out;
-        }
-        @keyframes ledPulse {
-            0%,100% { opacity: 0.5; transform: scale(0.88); }
-            50%      { opacity: 1;   transform: scale(1.22); }
-        }
-        /* Mũi tên */
-        .pointer {
-            position: absolute; top: 50%; right: -20px;
-            transform: translateY(-50%);
-            width: 90px; height: 58px;
-            clip-path: polygon(0 50%, 100% 0, 100% 100%);
-            background: linear-gradient(145deg, #fff0f3, #ff7aa2 35%, #ff3d71 65%, #aa1238);
-            filter: drop-shadow(-8px 8px 12px rgba(0,0,0,0.4));
-            z-index: 10;
-            transition: transform 0.04s ease-out;
-        }
-        /* Nút QUAY */
-        .spin-btn {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%,-50%);
-            width: 124px; height: 124px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-family: "Barlow Condensed", sans-serif;
-            font-weight: 900; font-size: 28px; letter-spacing: 2px;
-            color: #3a2100; cursor: pointer; user-select: none;
-            border: 7px solid rgba(255,255,255,0.90);
+
+        /* Nút QUAY - căn giữa wheel-stage */
+        .spin-btn{
+            position:absolute;top:50%;left:50%;
+            transform:translate(-50%,-50%);
+            width:22%;height:22%;
+            min-width:72px;min-height:72px;
+            border-radius:50%;display:flex;align-items:center;justify-content:center;
+            font-family:"Barlow Condensed",sans-serif;font-weight:900;
+            font-size:clamp(14px,1.8vw,26px);letter-spacing:2px;color:#3a2100;
+            cursor:pointer;user-select:none;border:none;outline:none;
             background:
-                radial-gradient(circle at 34% 30%, rgba(255,255,255,0.85), transparent 28%),
-                radial-gradient(circle at 50% 40%, #fff8da, #ffd86b 38%, #ffb703 68%, #9f5a00 100%);
-            box-shadow: 0 18px 30px rgba(0,0,0,0.38), inset 0 3px 0 rgba(255,255,255,0.68), 0 0 26px rgba(255,200,65,0.24);
-            z-index: 20;
-            transition: transform 0.18s ease, filter 0.18s ease;
+                radial-gradient(circle at 34% 30%,rgba(255,255,255,.85),transparent 28%),
+                radial-gradient(circle,#fff8da,#ffd86b 38%,#ffb703 68%,#9f5a00 100%);
+            box-shadow:0 14px 28px rgba(0,0,0,.4),inset 0 3px 0 rgba(255,255,255,.65),0 0 0 6px rgba(255,255,255,.12);
+            z-index:20;transition:transform .18s,filter .18s;
         }
-        .spin-btn:hover  { transform: translate(-50%,-50%) scale(1.06); filter: brightness(1.05); }
-        .spin-btn:active { transform: translate(-50%,-46%) scale(0.96); }
+        .spin-btn:hover{transform:translate(-50%,-50%) scale(1.07);filter:brightness(1.06)}
+        .spin-btn:active{transform:translate(-50%,-46%) scale(.95)}
+
         /* Sidebar */
-        .sidebar { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; gap: 18px; }
-        .glass-card {
-            background: var(--panel); border: 1px solid var(--panel-border);
-            border-radius: 26px; backdrop-filter: blur(18px);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.38);
+        .sidebar{width:340px;flex-shrink:0;display:flex;flex-direction:column;gap:18px}
+        .glass-card{
+            background:rgba(12,24,44,.80);border:1px solid rgba(255,255,255,.09);
+            border-radius:26px;backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.38);
         }
-        .input-section { padding: 22px; display: flex; flex-direction: column; min-height: 62vh; max-height: 680px; }
-        .input-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .input-header h2 {
-            font-family: "Barlow Condensed", "Be Vietnam Pro", sans-serif;
-            font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+        .input-section{padding:22px;display:flex;flex-direction:column;min-height:62vh;max-height:680px}
+        .input-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+        .input-header h2{
+            font-family:"Barlow Condensed","Be Vietnam Pro",sans-serif;
+            font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:2px;
         }
-        .count-badge {
-            min-width: 46px; height: 38px;
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 0 13px; border-radius: 999px;
-            font-family: "Barlow Condensed", sans-serif;
-            font-size: 16px; font-weight: 900; letter-spacing: 1px;
-            color: #081120;
-            background: linear-gradient(135deg, #8ee8ff, #36d7ff);
-            box-shadow: 0 8px 20px rgba(54,215,255,0.26);
+        .count-badge{
+            min-width:46px;height:38px;display:inline-flex;align-items:center;justify-content:center;
+            padding:0 13px;border-radius:999px;font-family:"Barlow Condensed",sans-serif;
+            font-size:16px;font-weight:900;color:#081120;
+            background:linear-gradient(135deg,#8ee8ff,#36d7ff);
         }
-        textarea {
-            flex: 1; width: 100%;
-            background: rgba(7,17,31,0.65);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px; padding: 14px 16px;
-            font-size: 15px; font-weight: 600; color: var(--text);
-            resize: none; outline: none; line-height: 1.8;
+        textarea{
+            flex:1;width:100%;background:rgba(7,17,31,.65);
+            border:1px solid rgba(255,255,255,.08);border-radius:16px;
+            padding:14px 16px;font-size:15px;font-weight:600;color:#eef4ff;
+            resize:none;outline:none;line-height:1.8;
         }
-        textarea::placeholder { color: #6f85ad; }
-        .controls { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn {
-            width: 100%; padding: 14px; border: none; border-radius: 14px;
-            color: #fff; font-weight: 900; font-size: 13px;
-            text-transform: uppercase; letter-spacing: 0.4px; cursor: pointer;
-            transition: transform 0.15s, filter 0.15s;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.2);
+        textarea::placeholder{color:#6f85ad}
+        .controls{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .btn{
+            width:100%;padding:14px;border:none;border-radius:14px;
+            color:#fff;font-weight:900;font-size:13px;text-transform:uppercase;
+            cursor:pointer;transition:transform .15s,filter .15s;
+            box-shadow:0 10px 20px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.2);
         }
-        .btn:hover  { transform: translateY(-2px); filter: brightness(1.05); }
-        .btn:active { transform: translateY(2px); }
-        .btn-shuffle { grid-column: span 2; background: linear-gradient(135deg,#16d9c0,#0aa37d); font-size: 15px; padding: 15px; }
-        .btn-reset   { background: linear-gradient(135deg,#ffbe55,#f07d16); }
-        .btn-clear   { background: linear-gradient(135deg,#ff6b86,#db2449); }
-        .links-section { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-        .links-section a {
-            display: block; text-align: center; text-decoration: none;
-            color: var(--text); font-weight: 800; font-size: 14px;
-            padding: 13px 14px; border-radius: 14px;
-            background: linear-gradient(135deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03));
-            border: 1px solid rgba(255,255,255,0.08);
-            transition: transform 0.18s, border-color 0.18s, color 0.18s;
+        .btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+        .btn:active{transform:translateY(2px)}
+        .btn-shuffle{grid-column:span 2;background:linear-gradient(135deg,#16d9c0,#0aa37d);font-size:15px;padding:15px}
+        .btn-reset{background:linear-gradient(135deg,#ffbe55,#f07d16)}
+        .btn-clear{background:linear-gradient(135deg,#ff6b86,#db2449)}
+        .links-section{padding:16px;display:flex;flex-direction:column;gap:12px}
+        .links-section a{
+            display:block;text-align:center;text-decoration:none;
+            color:#eef4ff;font-weight:800;font-size:14px;padding:13px 14px;border-radius:14px;
+            background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
+            border:1px solid rgba(255,255,255,.08);
+            transition:transform .18s,border-color .18s,color .18s;
         }
-        .links-section a:hover { transform: translateY(-2px); border-color: rgba(54,215,255,0.35); color: #c8f4ff; }
-        .btn-contact:hover { color: #ffd2df !important; }
-        @media (max-width: 1100px) {
-            .container { flex-direction: column; align-items: center; padding: 12px 20px 30px; }
-            .sidebar { width: min(100%, 600px); }
-            .wheel-stage { width: min(86vw, 560px); height: min(86vw, 560px); }
-            .input-section { min-height: 380px; max-height: none; }
+        .links-section a:hover{transform:translateY(-2px);border-color:rgba(54,215,255,.35);color:#c8f4ff}
+        .btn-contact:hover{color:#ffd2df!important}
+
+        @media(max-width:1100px){
+            .container{flex-direction:column;align-items:center;padding:12px 20px 30px}
+            .sidebar{width:min(100%,600px)}
+            .wheel-stage{width:min(86vw,560px);height:min(86vw,560px)}
+            .input-section{min-height:380px;max-height:none}
         }
-        @media (max-width: 600px) {
-            header { padding-top: 16px; }
-            header h1 { letter-spacing: 1.5px; }
-            .container { padding: 8px 12px 22px; gap: 18px; }
-            .wheel-stage { width: min(92vw, 420px); height: min(92vw, 420px); min-width: 260px; min-height: 260px; }
-            .pointer { right: -14px; width: 65px; height: 44px; }
-            .spin-btn { width: 90px; height: 90px; font-size: 22px; border-width: 5px; }
-            .links-section a { font-size: 13px; }
+        @media(max-width:600px){
+            header{padding-top:16px}
+            .container{padding:8px 12px 22px;gap:18px}
+            .wheel-stage{width:min(92vw,420px);height:min(92vw,420px);min-width:260px;min-height:260px}
+            .pointer{right:-12px;width:60px;height:40px}
+            .spin-btn{min-width:60px;min-height:60px}
+            .links-section a{font-size:13px}
         }
-        @media (max-width: 380px) {
-            .controls { grid-template-columns: 1fr; }
-            .btn-shuffle { grid-column: span 1; }
-            .spin-btn { width: 76px; height: 76px; font-size: 18px; }
+        @media(max-width:380px){
+            .controls{grid-template-columns:1fr}
+            .btn-shuffle{grid-column:span 1}
         }
     </style>
 </head>
@@ -207,7 +175,7 @@
 </header>
 <main class="container">
     <div class="wheel-section">
-        <div class="wheel-stage">
+        <div class="wheel-stage" id="wheel-stage">
             <div class="wheel-glow"></div>
             <div class="wheel-rim"></div>
             <div class="wheel-canvas-wrap">
@@ -227,8 +195,8 @@
             <textarea id="names-input" placeholder="Nhập mỗi mục trên một dòng..."></textarea>
             <div class="controls">
                 <button class="btn btn-shuffle" id="shuffle-btn">Xáo trộn danh sách</button>
-                <button class="btn btn-reset"   id="reset-btn">Mặc định</button>
-                <button class="btn btn-clear"   id="clear-btn">Xóa hết</button>
+                <button class="btn btn-reset" id="reset-btn">Mặc định</button>
+                <button class="btn btn-clear" id="clear-btn">Xóa hết</button>
             </div>
         </div>
         <div class="links-section glass-card">
@@ -247,10 +215,10 @@ const spinBtn    = document.getElementById("spin-btn");
 const pointer    = document.getElementById("pointer");
 const ledRingEl  = document.getElementById("led-ring");
 
-const W = canvas.width, H = canvas.height, CX = W/2, CY = H/2;
-const COLORS = ["#FF5A5F","#3BCEAC","#FFC857","#2D93AD","#9B5DE5","#F15BB5",
-                "#00BBF9","#00F5D4","#FCA311","#E01A4F","#06D6A0","#118AB2"];
-const DEFAULT = "Tý
+const W=canvas.width, H=canvas.height, CX=W/2, CY=H/2;
+const COLORS=["#FF5A5F","#3BCEAC","#FFC857","#2D93AD","#9B5DE5","#F15BB5",
+              "#00BBF9","#00F5D4","#FCA311","#E01A4F","#06D6A0","#118AB2"];
+const DEFAULT="Tý
 Sửu
 Dần
 Mão
@@ -263,260 +231,241 @@ Dậu
 Tuất
 Hợi";
 
-let names      = [];
-let angle      = 0;   // góc hiện tại (rad) — dùng trực tiếp trong ctx.rotate()
-let velocity   = 0;
-let spinning   = false;
-let rafId      = null;
+let names=[], angle=0, velocity=0, spinning=false, rafId=null;
 
-const saved = localStorage.getItem("fvl_v3");
-namesInput.value = (saved && saved.trim()) ? saved : DEFAULT;
+// Đọc localStorage hoặc dùng default
+const saved=localStorage.getItem("fvl_v3");
+namesInput.value=(saved&&saved.trim())?saved:DEFAULT;
 
 /* ── ÂM THANH ── */
-let audioCtx = null;
-function getAC() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === "suspended") audioCtx.resume();
+let audioCtx=null;
+function getAC(){
+    if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==="suspended") audioCtx.resume();
     return audioCtx;
 }
-function playTick() {
-    try {
-        const ac  = getAC();
-        const len = Math.floor(ac.sampleRate * 0.018);
-        const buf = ac.createBuffer(1, len, ac.sampleRate);
-        const d   = buf.getChannelData(0);
-        for (let i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, 8);
-        const s = ac.createBufferSource(); s.buffer = buf;
-        const f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 900; f.Q.value = 2.5;
-        const g = ac.createGain(); g.gain.value = 0.5;
-        s.connect(f); f.connect(g); g.connect(ac.destination); s.start();
-    } catch(e) {}
-    pointer.style.transform = "translateY(-50%) rotate(12deg)";
-    setTimeout(() => { pointer.style.transform = "translateY(-50%) rotate(0deg)"; }, 40);
+function playTick(){
+    try{
+        const ac=getAC(), len=Math.floor(ac.sampleRate*0.018);
+        const buf=ac.createBuffer(1,len,ac.sampleRate);
+        const d=buf.getChannelData(0);
+        for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,8);
+        const s=ac.createBufferSource(); s.buffer=buf;
+        const f=ac.createBiquadFilter(); f.type="bandpass"; f.frequency.value=900; f.Q.value=2.5;
+        const g=ac.createGain(); g.gain.value=0.45;
+        s.connect(f);f.connect(g);g.connect(ac.destination);s.start();
+    }catch(e){}
+    pointer.style.transform="translateY(-50%) rotate(12deg)";
+    setTimeout(()=>{pointer.style.transform="translateY(-50%) rotate(0deg)";},40);
 }
-function playWin() {
-    try {
-        const ac = getAC();
-        [523.25,659.25,783.99,1046.5].forEach((f,i) => setTimeout(() => {
-            const o = ac.createOscillator(), g = ac.createGain();
-            o.connect(g); g.connect(ac.destination);
-            o.type = "sine"; o.frequency.value = f;
-            g.gain.setValueAtTime(0, ac.currentTime);
-            g.gain.linearRampToValueAtTime(0.18, ac.currentTime+0.1);
-            g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime+1.5);
-            o.start(); o.stop(ac.currentTime+1.5);
-        }, i*80));
-    } catch(e) {}
+function playWin(){
+    try{
+        const ac=getAC();
+        [523.25,659.25,783.99,1046.5].forEach((f,i)=>setTimeout(()=>{
+            const o=ac.createOscillator(),g=ac.createGain();
+            o.connect(g);g.connect(ac.destination);
+            o.type="sine";o.frequency.value=f;
+            g.gain.setValueAtTime(0,ac.currentTime);
+            g.gain.linearRampToValueAtTime(0.18,ac.currentTime+0.1);
+            g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+1.5);
+            o.start();o.stop(ac.currentTime+1.5);
+        },i*80));
+    }catch(e){}
 }
 
 /* ── LED ── */
-function buildLEDs() {
-    ledRingEl.innerHTML = "";
-    const sz = ledRingEl.offsetWidth; if (!sz) return;
-    const r  = sz/2 - 5, cx = sz/2, cy = sz/2;
-    const n  = Math.max(16, Math.floor(sz/13));
-    const pal = ["#ffd86b","#36d7ff","#ff4db8","#9eff6b","#fff2b3"];
-    for (let i = 0; i < n; i++) {
-        const a  = (2*Math.PI*i/n) - Math.PI/2;
-        const el = document.createElement("span"); el.className = "led";
-        const col = pal[i%pal.length];
-        el.style.cssText = `left:${cx+Math.cos(a)*r-5.5}px;top:${cy+Math.sin(a)*r-5.5}px;color:${col};background:${col};animation-delay:${(i%8)*0.12}s;animation-duration:${1.0+(i%5)*0.18}s`;
+function buildLEDs(){
+    ledRingEl.innerHTML="";
+    const sz=ledRingEl.offsetWidth;
+    if(!sz||sz<10) return;
+    const r=sz/2-5,cx=sz/2,cy=sz/2;
+    const n=Math.max(16,Math.floor(sz/13));
+    const pal=["#ffd86b","#36d7ff","#ff4db8","#9eff6b","#fff2b3"];
+    for(let i=0;i<n;i++){
+        const a=(2*Math.PI*i/n)-Math.PI/2;
+        const el=document.createElement("span"); el.className="led";
+        const col=pal[i%pal.length];
+        el.style.cssText=`left:${cx+Math.cos(a)*r-5.5}px;top:${cy+Math.sin(a)*r-5.5}px;color:${col};background:${col};animation-delay:${(i%8)*0.12}s;animation-duration:${1.0+(i%5)*0.18}s`;
         ledRingEl.appendChild(el);
     }
 }
 
-/* ── VẼ TOÀN BỘ FRAME (bao gồm xoay) ── */
-function adj(hex, amt) {
-    const n = parseInt(hex.slice(1),16), c = v => Math.max(0,Math.min(255,v+amt));
+/* ── VẼ VÒNG QUAY (ctx.rotate = không đụng DOM) ── */
+function adj(hex,amt){
+    const n=parseInt(hex.slice(1),16),c=v=>Math.max(0,Math.min(255,v+amt));
     return `rgb(${c(n>>16)},${c((n>>8)&255)},${c(n&255)})`;
 }
+function drawFrame(){
+    ctx.clearRect(0,0,W,H);
+    if(!names.length) return;
 
-function drawFrame() {
-    ctx.clearRect(0, 0, W, H);
-    if (!names.length) return;
+    const R=W/2-10;
+    const slice=(2*Math.PI)/names.length;
 
-    const R     = W/2 - 10;
-    const slice = (2*Math.PI) / names.length;
-
-    /* ── Xoay toàn bộ canvas theo góc hiện tại ── */
     ctx.save();
-    ctx.translate(CX, CY);
+    ctx.translate(CX,CY);
     ctx.rotate(angle);
-    ctx.translate(-CX, -CY);
+    ctx.translate(-CX,-CY);
 
-    /* Clip tròn */
+    // Clip tròn
     ctx.save();
     ctx.beginPath(); ctx.arc(CX,CY,R,0,2*Math.PI); ctx.clip();
 
-    for (let i = 0; i < names.length; i++) {
-        const sa = i*slice, ea = sa+slice, mid = sa+slice/2;
-        const col = COLORS[i%COLORS.length];
-        const hx  = CX + Math.cos(mid)*R*0.28;
-        const hy  = CY + Math.sin(mid)*R*0.28;
-
-        const g = ctx.createRadialGradient(hx,hy,R*0.04, CX,CY,R);
-        g.addColorStop(0,   adj(col, 50));
-        g.addColorStop(0.5, col);
-        g.addColorStop(1,   adj(col,-60));
+    for(let i=0;i<names.length;i++){
+        const sa=i*slice, ea=sa+slice, mid=sa+slice/2;
+        const col=COLORS[i%COLORS.length];
+        const hx=CX+Math.cos(mid)*R*0.28, hy=CY+Math.sin(mid)*R*0.28;
+        const g=ctx.createRadialGradient(hx,hy,R*0.04,CX,CY,R);
+        g.addColorStop(0,adj(col,50)); g.addColorStop(0.5,col); g.addColorStop(1,adj(col,-60));
 
         ctx.beginPath(); ctx.moveTo(CX,CY); ctx.arc(CX,CY,R,sa,ea); ctx.closePath();
-        ctx.fillStyle = g; ctx.fill();
-        ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.lineWidth = 3; ctx.stroke();
+        ctx.fillStyle=g; ctx.fill();
+        ctx.strokeStyle="rgba(255,255,255,0.85)"; ctx.lineWidth=3; ctx.stroke();
 
-        /* Gloss */
+        // Gloss
         ctx.save();
         ctx.beginPath(); ctx.moveTo(CX,CY); ctx.arc(CX,CY,R,sa,ea); ctx.closePath(); ctx.clip();
-        const gl = ctx.createLinearGradient(CX,CY-R,CX,CY+R);
-        gl.addColorStop(0,   "rgba(255,255,255,0.18)");
-        gl.addColorStop(0.3, "rgba(255,255,255,0.04)");
-        gl.addColorStop(1,   "rgba(0,0,0,0.08)");
-        ctx.fillStyle = gl; ctx.fillRect(CX-R,CY-R,R*2,R*2);
+        const gl=ctx.createLinearGradient(CX,CY-R,CX,CY+R);
+        gl.addColorStop(0,"rgba(255,255,255,0.18)");
+        gl.addColorStop(0.3,"rgba(255,255,255,0.04)");
+        gl.addColorStop(1,"rgba(0,0,0,0.08)");
+        ctx.fillStyle=gl; ctx.fillRect(CX-R,CY-R,R*2,R*2);
         ctx.restore();
 
-        /* Chữ */
+        // Chữ
         ctx.save();
         ctx.translate(CX,CY); ctx.rotate(mid);
-        ctx.textAlign = "right"; ctx.textBaseline = "middle";
-        ctx.font = "900 40px \"Barlow Condensed\",\"Be Vietnam Pro\",Arial,sans-serif";
-        ctx.shadowColor = "rgba(0,0,0,0.65)"; ctx.shadowBlur = 8;
-        ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth = 3;
-        let txt = names[i]; if (txt.length > 20) txt = txt.slice(0,18)+"…";
-        ctx.strokeText(txt, R-46, 0);
-        ctx.fillStyle = "#fff"; ctx.fillText(txt, R-46, 0);
+        ctx.textAlign="right"; ctx.textBaseline="middle";
+        ctx.font="900 40px \"Barlow Condensed\",\"Be Vietnam Pro\",Arial,sans-serif";
+        ctx.shadowColor="rgba(0,0,0,0.65)"; ctx.shadowBlur=8;
+        ctx.strokeStyle="rgba(0,0,0,0.3)"; ctx.lineWidth=3;
+        let txt=names[i]; if(txt.length>20) txt=txt.slice(0,18)+"…";
+        ctx.strokeText(txt,R-46,0);
+        ctx.fillStyle="#fff"; ctx.fillText(txt,R-46,0);
         ctx.restore();
     }
-    ctx.restore(); /* clip */
+    ctx.restore(); // clip
 
-    /* Viền ngoài */
-    const rimG = ctx.createLinearGradient(0,0,W,H);
-    rimG.addColorStop(0,  "rgba(255,255,255,0.65)");
-    rimG.addColorStop(.5, "rgba(255,215,120,0.95)");
-    rimG.addColorStop(1,  "rgba(140,74,0,0.9)");
+    // Viền ngoài
+    const rimG=ctx.createLinearGradient(0,0,W,H);
+    rimG.addColorStop(0,"rgba(255,255,255,0.65)");
+    rimG.addColorStop(.5,"rgba(255,215,120,0.95)");
+    rimG.addColorStop(1,"rgba(140,74,0,0.9)");
     ctx.beginPath(); ctx.arc(CX,CY,R,0,2*Math.PI);
-    ctx.strokeStyle = rimG; ctx.lineWidth = 12; ctx.stroke();
+    ctx.strokeStyle=rimG; ctx.lineWidth=12; ctx.stroke();
 
-    /* Hub vàng */
-    const hg = ctx.createRadialGradient(CX-20,CY-20,4, CX,CY,R*0.13);
-    hg.addColorStop(0,  "#fff8da"); hg.addColorStop(0.4,"#ffd86b");
-    hg.addColorStop(.75,"#ffb703"); hg.addColorStop(1,  "#9f5a00");
+    // Hub vàng
+    const hg=ctx.createRadialGradient(CX-20,CY-20,4,CX,CY,R*0.13);
+    hg.addColorStop(0,"#fff8da"); hg.addColorStop(0.4,"#ffd86b");
+    hg.addColorStop(.75,"#ffb703"); hg.addColorStop(1,"#9f5a00");
     ctx.beginPath(); ctx.arc(CX,CY,R*0.12,0,2*Math.PI);
-    ctx.fillStyle = hg; ctx.shadowColor="rgba(0,0,0,0.4)"; ctx.shadowBlur=14;
+    ctx.fillStyle=hg; ctx.shadowColor="rgba(0,0,0,0.4)"; ctx.shadowBlur=14;
     ctx.fill(); ctx.shadowBlur=0;
     ctx.strokeStyle="rgba(255,255,255,0.5)"; ctx.lineWidth=5; ctx.stroke();
 
-    ctx.restore(); /* rotate */
+    ctx.restore(); // rotate
 }
 
 /* ── LOGIC ── */
-function updateNames() {
-    const text = namesInput.value;
-    names = text.split("
+function updateNames(){
+    const text=namesInput.value;
+    names=text.split("
 ").map(s=>s.trim()).filter(Boolean);
-    entryCount.textContent = names.length;
-    localStorage.setItem("fvl_v3", text);
-    angle = 0;
+    entryCount.textContent=names.length;
+    localStorage.setItem("fvl_v3",text);
+    angle=0;
     drawFrame();
 }
-
-function getWinnerIdx() {
-    const slice = (2*Math.PI)/names.length;
-    const norm  = ((2*Math.PI) - (angle % (2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
-    return Math.floor(norm/slice) % names.length;
+function getWinnerIdx(){
+    if(!names.length) return 0;
+    const slice=(2*Math.PI)/names.length;
+    const norm=((2*Math.PI)-(angle%(2*Math.PI))+(2*Math.PI))%(2*Math.PI);
+    return Math.floor(norm/slice)%names.length;
 }
-
-function spin() {
-    if (spinning || !names.length) return;
+function spin(){
+    if(spinning||!names.length) return;
     getAC();
-    spinning = true;
-    velocity = 0.58 + Math.random()*0.22;
-    spinBtn.style.pointerEvents = "none";
-
-    const slice = (2*Math.PI)/names.length;
-    let lastSlice = -1;
-
-    function step() {
-        angle    += velocity;
-        velocity *= 0.991;
-
-        // Giới hạn tránh float overflow
-        if (angle > 360*Math.PI) angle -= 360*Math.PI;
-
+    spinning=true;
+    velocity=0.58+Math.random()*0.22;
+    spinBtn.style.pointerEvents="none";
+    const slice=(2*Math.PI)/names.length;
+    let lastSlice=-1;
+    function step(){
+        angle+=velocity;
+        velocity*=0.991;
+        if(angle>720*Math.PI) angle-=720*Math.PI;
         drawFrame();
-
-        // Tick: tính slice tại mũi tên (góc 0 = bên phải)
-        const norm = ((2*Math.PI) - (angle%(2*Math.PI)) + (2*Math.PI)) % (2*Math.PI);
-        const sl   = Math.floor(norm/slice) % names.length;
-        if (sl !== lastSlice) { playTick(); lastSlice = sl; }
-
-        if (velocity > 0.003) {
-            rafId = requestAnimationFrame(step);
+        const norm=((2*Math.PI)-(angle%(2*Math.PI))+(2*Math.PI))%(2*Math.PI);
+        const sl=Math.floor(norm/slice)%names.length;
+        if(sl!==lastSlice){playTick();lastSlice=sl;}
+        if(velocity>0.003){
+            rafId=requestAnimationFrame(step);
         } else {
-            spinning = false;
-            angle    = angle % (2*Math.PI);
-            spinBtn.style.pointerEvents = "auto";
+            spinning=false;
+            angle=angle%(2*Math.PI);
+            spinBtn.style.pointerEvents="auto";
             cancelAnimationFrame(rafId);
-            setTimeout(showWinner, 200);
+            setTimeout(showWinner,200);
         }
     }
     requestAnimationFrame(step);
 }
-
-function showWinner() {
-    const idx    = getWinnerIdx();
-    const winner = names[idx];
+function showWinner(){
+    const idx=getWinnerIdx(), winner=names[idx];
     playWin();
-    confetti({ particleCount:200, spread:85, origin:{y:0.6},
-               colors:["#ffd86b","#36d7ff","#ff4db8","#fff","#7c5cff"] });
+    confetti({particleCount:200,spread:85,origin:{y:0.6},colors:["#ffd86b","#36d7ff","#ff4db8","#fff","#7c5cff"]});
     Swal.fire({
-        title: "🎉 XUẤT SẮC 🎉",
-        html:  `Chúc mừng người may mắn:<br><br><strong style="font-size:34px;color:#ff5a5f">${winner}</strong>`,
-        icon:  "success", showCancelButton: true,
-        confirmButtonText: "Loại người này", cancelButtonText: "Giữ lại",
-        confirmButtonColor: "#db2449", cancelButtonColor: "#243b63",
-        background: "#0f1f38", color: "#eef4ff"
-    }).then(r => {
-        if (r.isConfirmed) { names.splice(idx,1); namesInput.value=names.join("
-"); updateNames(); }
+        title:"🎉 XUẤT SẮC 🎉",
+        html:`Chúc mừng người may mắn:<br><br><strong style="font-size:34px;color:#ff5a5f">${winner}</strong>`,
+        icon:"success",showCancelButton:true,
+        confirmButtonText:"Loại người này",cancelButtonText:"Giữ lại",
+        confirmButtonColor:"#db2449",cancelButtonColor:"#243b63",
+        background:"#0f1f38",color:"#eef4ff"
+    }).then(r=>{
+        if(r.isConfirmed){names.splice(idx,1);namesInput.value=names.join("
+");updateNames();}
     });
 }
 
 /* ── EVENTS ── */
-namesInput.addEventListener("input", updateNames);
-spinBtn.addEventListener("click", spin);
-
-document.getElementById("shuffle-btn").addEventListener("click", () => {
-    if (spinning) return;
-    let a = namesInput.value.split("
+namesInput.addEventListener("input",updateNames);
+spinBtn.addEventListener("click",spin);
+document.getElementById("shuffle-btn").addEventListener("click",()=>{
+    if(spinning) return;
+    let a=namesInput.value.split("
 ").filter(s=>s.trim());
-    for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
-    namesInput.value = a.join("
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+    namesInput.value=a.join("
 "); updateNames();
 });
-document.getElementById("clear-btn").addEventListener("click", () => {
-    if (!spinning) { namesInput.value=""; updateNames(); }
+document.getElementById("clear-btn").addEventListener("click",()=>{
+    if(!spinning){namesInput.value="";updateNames();}
 });
-document.getElementById("reset-btn").addEventListener("click", () => {
-    if (spinning) return;
-    Swal.fire({ title:"Khôi phục?", text:"Quay về danh sách 12 con giáp mặc định.",
-        icon:"question", showCancelButton:true, confirmButtonText:"Khôi phục",
-        confirmButtonColor:"#f07d16", background:"#0f1f38", color:"#eef4ff"
-    }).then(r => { if(r.isConfirmed){ namesInput.value=DEFAULT; updateNames(); } });
+document.getElementById("reset-btn").addEventListener("click",()=>{
+    if(spinning) return;
+    Swal.fire({title:"Khôi phục?",text:"Quay về danh sách 12 con giáp mặc định.",
+        icon:"question",showCancelButton:true,confirmButtonText:"Khôi phục",
+        confirmButtonColor:"#f07d16",background:"#0f1f38",color:"#eef4ff"
+    }).then(r=>{if(r.isConfirmed){namesInput.value=DEFAULT;updateNames();}});
 });
-
-document.getElementById("btn-msg").addEventListener("click", e => {
+document.getElementById("btn-msg").addEventListener("click",e=>{
     e.preventDefault();
-    const mob = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
-    window.open(mob ? "https://m.me/FontVietLinh" : "https://www.facebook.com/messages/t/FontVietLinh", "_blank");
+    const mob=/Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
+    window.open(mob?"https://m.me/FontVietLinh":"https://www.facebook.com/messages/t/FontVietLinh","_blank");
 });
+window.addEventListener("resize",()=>setTimeout(buildLEDs,80));
 
-window.addEventListener("resize", () => { setTimeout(buildLEDs, 50); });
-
-/* ── KHỞI TẠO ── */
+/* ── KHỞI TẠO ──
+   Gọi updateNames() ngay → parse names → drawFrame() vẽ vòng quay
+   Sau đó buildLEDs khi DOM đã render xong kích thước thật */
 updateNames();
-setTimeout(buildLEDs, 100);
-window.addEventListener("load", () => { setTimeout(buildLEDs, 200); drawFrame(); });
-if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => drawFrame());
+// buildLEDs cần offsetWidth thật → dùng requestAnimationFrame để chắc chắn
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    buildLEDs();
+    drawFrame(); // vẽ lại sau khi layout xong
+}));
+if(document.fonts&&document.fonts.ready){
+    document.fonts.ready.then(()=>drawFrame());
 }
 </script>
 </body>
