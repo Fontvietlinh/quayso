@@ -24,15 +24,20 @@
             background: radial-gradient(circle at top, #0f1f38, #050a14);
             overflow: hidden; font-weight: 700;
         }
-        header { padding: 30px 10px 10px; text-align: center; }
+        header { padding: 20px 10px 5px; text-align: center; }
         header h1 {
             font-family: var(--font-heading); font-size: clamp(24px, 5vw, 48px);
             text-transform: uppercase; letter-spacing: 2px;
             background: linear-gradient(180deg, #fff, var(--primary));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-            line-height: 1.4;
+            line-height: 1.1; /* Thu hẹp khoảng cách dòng */
         }
-        header h1 span { display: block; font-size: 1em; margin-top: 5px; -webkit-text-fill-color: transparent; }
+        header h1 span { 
+            display: block; 
+            font-size: 1em; 
+            margin-top: -2px; /* Đưa dòng 2 sát lên dòng 1 */
+            -webkit-text-fill-color: transparent; 
+        }
         .main-container { display: flex; flex: 1; max-width: 100%; margin: 0 auto; width: 100%; padding: 0 30px 20px; gap: 40px; align-items: center; justify-content: center; }
         .wheel-section { flex: 2.5; display: flex; justify-content: center; align-items: center; position: relative; }
         .wheel-outer { 
