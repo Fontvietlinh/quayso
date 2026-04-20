@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vòng Quay May Mắn - Font Việt Linh</title>
     <link rel="icon" type="image/png" href="favicon.png">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="FontViệtLinh">
     <link rel="apple-touch-icon" href="favicon.png">
-    
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@900&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
     <style>
         :root {
             --bg: #050a14; --primary: #36d7ff; --gold: #ffb703; --panel: rgba(15, 31, 56, 0.95);
@@ -27,54 +24,38 @@
             background: radial-gradient(circle at top, #0f1f38, #050a14);
             overflow: hidden; font-weight: 700;
         }
-        header { 
-            padding: 25px 10px 10px; /* Tăng padding trên để đẩy chữ xuống tránh mất dấu */
-            text-align: center; 
-        }
+        header { padding: 30px 10px 10px; text-align: center; }
         header h1 {
             font-family: var(--font-heading); font-size: clamp(24px, 5vw, 48px);
             text-transform: uppercase; letter-spacing: 2px;
             background: linear-gradient(180deg, #fff, var(--primary));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-            line-height: 1.3; /* Tăng line-height để hiện rõ dấu tiếng Việt */
+            line-height: 1.4;
         }
         header h1 span { display: block; font-size: 1em; margin-top: 5px; -webkit-text-fill-color: transparent; }
-
-        .main-container { 
-            display: flex; flex: 1; max-width: 100%; /* Mở rộng tối đa */
-            margin: 0 auto; width: 100%; padding: 0 30px 20px; 
-            gap: 40px; align-items: center; justify-content: center; 
-        }
-
-        .wheel-section { 
-            flex: 2.5; /* Tăng không gian cho phần vòng quay */
-            display: flex; justify-content: center; align-items: center; position: relative; 
-        }
+        .main-container { display: flex; flex: 1; max-width: 100%; margin: 0 auto; width: 100%; padding: 0 30px 20px; gap: 40px; align-items: center; justify-content: center; }
+        .wheel-section { flex: 2.5; display: flex; justify-content: center; align-items: center; position: relative; }
         .wheel-outer { 
             position: relative; 
-            width: min(92vh, 850px); /* Tăng kích thước vòng quay lên 92% chiều cao màn hình */
+            width: min(92vh, 850px); 
             height: min(92vh, 850px); 
             background: conic-gradient(#fff5c2, #ffcb52, #ff9f1c, #ffd76a, #fff5c2); 
             border-radius: 50%; padding: 12px; 
             box-shadow: 0 0 100px rgba(0,0,0,0.9); 
         }
-
         .led-container { position: absolute; inset: 0; border-radius: 50%; z-index: 5; pointer-events: none; }
         .led { 
             position: absolute; width: 12px; height: 12px; background: #fff; border-radius: 50%; 
             top: 2px; left: 50%; transform: translateX(-50%); 
-            transform-origin: 50% calc(min(92vh, 850px) / 2); /* Đồng bộ LED theo size mới */
+            transform-origin: 50% calc(min(92vh, 850px) / 2);
             box-shadow: 0 0 15px #fff, 0 0 25px var(--gold); 
             animation: led-flash 0.4s infinite alternate; 
         }
         @keyframes led-flash { 0% { opacity: 0.2; filter: brightness(0.5); } 100% { opacity: 1; filter: brightness(2); box-shadow: 0 0 20px #fff, 0 0 40px var(--primary); } }
-        
         .canvas-wrap { width: 100%; height: 100%; background: #0d1d35; border-radius: 50%; overflow: hidden; }
         canvas { width: 100%; height: 100%; display: block; will-change: transform; transition: transform 9.5s cubic-bezier(0.15, 0, 0, 1); }
-        
         .pointer { position: absolute; top: 50%; right: -35px; transform: translateY(-50%); width: 85px; height: 55px; background: linear-gradient(to left, #ff3d71, #aa1238); clip-path: polygon(0 50%, 100% 0, 100% 100%); z-index: 10; transform-origin: center right; }
         .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; background: radial-gradient(circle at 30% 30%, #fff, var(--gold)); border: 7px solid #fff; border-radius: 50%; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-weight: 900; font-size: 32px; color: #3a2100; box-shadow: 0 15px 45px rgba(0,0,0,0.7); transition: 0.2s; }
-        
         .sidebar { flex: 0.7; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
         .card { background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 26px; padding: 22px; }
         textarea { width: 100%; height: 210px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 15px; color: #fff; font-size: 16px; outline: none; resize: none; line-height: 1.6; font-family: var(--font-main); font-weight: 700; }
@@ -83,15 +64,7 @@
         .btn-main { grid-column: span 2; background: var(--primary); color: #000; font-size: 15px; }
         .btn-sec { background: rgba(255,255,255,0.08); color: #fff; }
         .link-item { display: block; padding: 14px 20px; background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; color: #fff; text-decoration: none; text-align: left; font-weight: 700; font-size: 13.5px; margin-bottom: 10px; transition: 0.2s; font-family: var(--font-main); }
-        
-        @media (max-width: 1100px) { 
-            .main-container { flex-direction: column; padding: 10px; } 
-            .wheel-outer { width: 92vw; height: 92vw; } 
-            .led { transform-origin: 50% 46vw; width: 10px; height: 10px; } 
-            .spin-btn { width: 95px; height: 95px; font-size: 20px; } 
-            .sidebar { max-width: 100%; padding-bottom: 60px; } 
-            body { overflow-y: auto; } 
-        }
+        @media (max-width: 1100px) { .main-container { flex-direction: column; padding: 10px; } .wheel-outer { width: 92vw; height: 92vw; } .led { transform-origin: 50% 46vw; width: 10px; height: 10px; } .spin-btn { width: 95px; height: 95px; font-size: 20px; } .sidebar { max-width: 100%; padding-bottom: 60px; } body { overflow-y: auto; } }
     </style>
 </head>
 <body>
@@ -206,7 +179,7 @@
         }, 9600);
     }
 
-    function update() { names = inputNames.value.split('\n').map(t => t.trim()).filter(t => t); document.getElementById('count').innerText = names.length; localStorage.setItem('fv_app_v1', inputNames.value); draw(); }
+    function update() { names = inputNames.value.split('\n').map(t => t.trim()).filter(t => t); document.getElementById('count').innerText = names.length; localStorage.setItem('fv_app_final', inputNames.value); draw(); }
     function shuffleNames() { names.sort(() => Math.random() - 0.5); inputNames.value = names.join('\n'); update(); }
     function resetDefault() { if(isSpinning) return; inputNames.value = defaultData; update(); }
     function clearAll() { if(isSpinning) return; inputNames.value = ""; update(); }
@@ -214,7 +187,7 @@
     
     document.getElementById('btn-msg').onclick = () => { const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent); window.open(isMobile ? 'https://m.me/FontVietLinh' : 'https://www.facebook.com/messages/t/FontVietLinh', '_blank'); };
     spinBtn.onclick = spin; inputNames.oninput = update; window.addEventListener('resize', buildLEDs);
-    const saved = localStorage.getItem('fv_app_v1'); inputNames.value = saved || defaultData; update(); setTimeout(buildLEDs, 300);
+    const saved = localStorage.getItem('fv_app_final'); inputNames.value = saved || defaultData; update(); setTimeout(buildLEDs, 300);
 
     const manifest = { "name": "Vòng Quay May Mắn Font Việt Linh", "short_name": "FontViệtLinh", "start_url": ".", "display": "standalone", "background_color": "#050a14", "theme_color": "#050a14", "icons": [{ "src": "favicon.png", "sizes": "512x512", "type": "image/png" }] };
     const stringManifest = JSON.stringify(manifest); const blob = new Blob([stringManifest], {type: 'application/json'}); const manifestURL = URL.createObjectURL(blob); document.querySelector('link[rel="icon"]').insertAdjacentHTML('afterend', `<link rel="manifest" href="${manifestURL}">`);
